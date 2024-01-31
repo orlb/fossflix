@@ -1,0 +1,19 @@
+{
+  "name": "fossflix",
+  "version": "1.0.0",
+  "description": "freeopensourcesoftware-flix",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orlb/fossflix.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/orlb/fossflix/issues"
+  },
+  "homepage": "https://github.com/orlb/fossflix#readme"
+}
