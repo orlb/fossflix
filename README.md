@@ -2,7 +2,7 @@
 
 freeopensourcesoftware-flix
 
-Alternative names : qwertymovie, notflix
+Alternative names : qwertymovies, notflix
 
 Video web client. node, express.js
 
