@@ -5,6 +5,6 @@
 " execute ":source ".vim_macros
 
 " Key combo '@ 1' will run lua on main.lua file
-nnoremap @1 :tabnew<cr>:term lua main.lua<cr>
+nnoremap @1 :tabnew<cr>:term node app.js<cr>
 
 " And so on...
