@@ -2,8 +2,20 @@
 
 freeopensourcesoftware-flix
 
-Alternative names : qwertymovies, notflix
+Alternative names : qwertymovie, notflix
 
 Video web client. node, express.js
 
-package.json is sample output of `npm init`
+## Install
+
+```bash
+sudo apt install npm nodejs
+cd fossflix
+npm install
+```
+
+## Test
+
+```bash
+node app.js
+```
