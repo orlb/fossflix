@@ -1,5 +1,11 @@
+//  app.js
+//
+//  Package entry point, express.js startup, configuration and routes
+
 const express = require('express');
 const path = require('path');
+
+const user = require('./modules/auth');
 
 const app = express();
 
