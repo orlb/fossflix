@@ -4,7 +4,7 @@
   "description": "freeopensourcesoftware-flix",
   "main": "index.js",
   "scripts": {
-    "test": "node src/local/app.js"
+    "test": "node src/app.js"
   },
   "repository": {
     "type": "git",

@@ -67,6 +67,7 @@ module.exports = {
     authenticateUser: function (req) {
         // return: user session ID | false
         // set session ID, return response to client browser, client initiated redirect if successful
+
         let login_status = validateUserCredentials(req);
         
         if ( login_status.valid == true ) {

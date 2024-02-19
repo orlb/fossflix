@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="http://dorm:8443/js/login.js"/></script>
     <style>
         body {
             background-color: #CF6A32;
@@ -42,29 +43,20 @@
             cursor: pointer;
         }
     </style>
-    <script>
-      const queryString = window.location.search;
-      const urlParams = new URLSearchParams(queryString);
-      const a = urlParams.get('a')
-
-      if ( a == 'login_success' ) {
-          alert('lmao');
-      }
-    </script>
 </head>
 <body>
 
     <div class="form-container">
-        <form action="/access" method="post">
+        <form id="login_form">
             <div class="form-group">
                 <label for="uid">UID:</label> <input type="text" name="uid" id="uid" value="">
             </div>
             <div class="form-group">
                 <label for="pwd">PWD:</label> <input type="password" name="pwd" id="pwd" value="">
             </div>
-            <button value="Login">Login</button>
-            <button value="Sign Up">Sign Up</button>
         </form>
+        <button onclick=submitLoginForm('login')>Login</button>
+        <button onclick=submitLoginForm('register')>Sign Up</button>
     </div>
 
 </body>

@@ -5,15 +5,16 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
-const user = require('./modules/auth');
+const user = require('./local/modules/auth');
 
 
 const app = express();
-app.use(cookieParser()) // get cookies object at req.cookies
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser()); // get cookies object at req.cookies
+const jsonParser = bodyParser.json();
+app.use(express.static(path.join(__dirname, 'public'))); // serve 'public' directory
 
 function enforceSession (req, res) {
     // return: true | false
@@ -40,10 +41,11 @@ app.get('/', function(req, res) {
 });
 
 app.get('/login', function(req, res) {
-    res.sendFile(path.join(__dirname, 'html/index.html'));
+    res.sendFile(path.join(__dirname, './local/html/index.html'));
 });
 
-app.post('/login', function(req, res) {
+app.post('/login', jsonParser, function(req, res) {
+    console.log(req.body);
     if ( req.body.login_form.register ) {
         // login form 'register' button clicked
         if ( user.registerUserCredentials(req).valid == true )
@@ -58,13 +60,7 @@ app.post('/login', function(req, res) {
     else if ( req.body.login_form.login ) {
         let login_status = user.authenticateUser(req) 
         if ( login_status.valid ) {
-            if ( req.query.ref ) {
-                let decoded_redirect_url = decodeURIComponent(req.query.ref);
-                res.redirect(`${decoded_redirect_url}`);
-            }
-            else {
-                res.redirect(`/`);
-            }
+            res.sendStatus(200);
         }
         else {
             res.sendStatus(400).json({ attempts: login_status.attempts });

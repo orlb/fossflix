@@ -4,7 +4,7 @@
 " let vim_macros = system('x=`pwd`; while [ "$x" != "/" ] ; do find "$x" -maxdepth 1 -name .macros.vim -print -quit; x=`dirname "$x"`; done')
 " execute ":source ".vim_macros
 
-" Key combo '@ 1' will run lua on main.lua file
+" Key combo '@ 1' will run 'npm run test'
 nnoremap @1 :tabnew<cr>:term npm run test<cr>
 
 " And so on...
