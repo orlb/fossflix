@@ -17,5 +17,5 @@ npm install
 ## Test
 
 ```bash
-node app.js
+npm run test
 ```

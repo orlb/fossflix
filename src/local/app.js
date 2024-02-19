@@ -4,7 +4,7 @@ const path = require('path');
 const app = express();
 
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, '/index.html'));
+    res.sendFile(path.join(__dirname, 'html/index.html'));
 });
 
 app.post('/access', function(req, res) {
@@ -12,5 +12,5 @@ app.post('/access', function(req, res) {
     res.redirect('/?a=login_success');
 });
 
-app.listen(8080);
+app.listen(8443, '0.0.0.0');
 console.log('Server started at http://localhost');
