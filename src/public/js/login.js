@@ -2,9 +2,11 @@ function submitLoginForm (action) {
     // post login_form input as json to /login
     let form = document.getElementById('login_form').cloneNode(true);
     let o = {};
+
     (new FormData(form)).forEach((v, k) => o[k] = v);
     o['action'] = action;
     o = JSON.stringify(o);
+    console.log(o);
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "/login", true);
