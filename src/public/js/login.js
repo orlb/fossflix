@@ -1,14 +1,15 @@
 function submitLoginForm (action) {
-    let form = document.getElementById('login_form');
-    let a = document.createElement('input');
-    a.name = action;
-    form.appendChild(action);
-    form = new FormData(form);
+    // post login_form input as json to /login
+    let form = document.getElementById('login_form').cloneNode(true);
+    let o = {};
+    (new FormData(form)).forEach((v, k) => o[k] = v);
+    o['action'] = action;
+    o = JSON.stringify(o);
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "/login", true);
-    //xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send(form);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(o);
 
     xhr.onload = () => {
         if ( xhr.status == '200' ) {
