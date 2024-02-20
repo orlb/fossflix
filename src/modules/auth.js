@@ -18,11 +18,11 @@ function enforceCredentialRequirements (req) {
         && /[_]/.test(user_credentials.uid)
         && ! /[A-Z]/.test(user_credentials.uid) 
         && ! /[\.]/.test(user_credentials.uid)
-        && ! /[\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.uid)
+        && ! /[@#%&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.uid)
         && user_credentials.pwd.length >= 8
         && /[a-z]/.test(user_credentials.pwd)
         && /[A-Z]/.test(user_credentials.pwd)
-        && /[\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)
+        && /[@#%&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)
         && ! /[\.]/.test(user_credentials.pwd)
     ) ) {
         return false;
@@ -61,12 +61,12 @@ function createUserRecord (req) {
         return { valid: false, message: "User already exists" };
     }
 
+    // add user account
     users.push( {
         uid: user_credentials.uid,
         pwd: user_credentials.pwd
     } );
 
-    // add user account
     users = JSON.stringify(users);
     fs.writeFileSync(user_accounts_file_path, users, { encoding: 'utf8' });
 
@@ -82,6 +82,7 @@ function validateUserCredentials () {
     // return: { true | false, attempts }
     // credential checking procedure
     // use req.body.username, etc
+    // write to login_attempts.json, get login attempts with time delta < 24 hours, lockout if > 5
 
     return { valid: true };
 }

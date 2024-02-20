@@ -45,14 +45,15 @@ app.post('/login', function(req, res) {
         // login form 'register' button clicked
         console.log('Attempting account registration for user: ' + login_form.uid);
         let registration_status = user.registerUserCredentials(req);
+        let j = JSON.stringify(registration_status);
         console.log(registration_status);
 
         if ( registration_status.valid ) {
             // send back success code to browser
-            res.sendStatus(200);
+            res.status(200).json(j);
         }
         else {
-            res.sendStatus(400);
+            res.status(400).json(j);
         }
     }
     else if ( login_form.action == 'login' ) {
