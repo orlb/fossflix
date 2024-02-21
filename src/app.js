@@ -7,6 +7,7 @@ const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const user = require('./modules/auth');
 
@@ -15,22 +16,29 @@ const app = express();
 app.use(cookieParser()); // get cookies object at req.cookies
 app.use(bodyParser.json());
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory
+// https://expressjs.com/en/resources/middleware/session.html
+app.use(session( {
+    secret: 'fossflixsecretjnkgsdaioxzdgvuoptwjklntqljkhjksc',
+    cookie: { maxAge: 30000 } // 30 second session timeout
+} ));
 
-function enforceSession (req, res) {
+function enforceSession (req, res, next) {
     // call at the start of every route where user must be authenticated
     // send user to login if not authenticated
 
-    if ( user.updateUserSession(req, res) == false ) {
+    if ( user.isUserAuthenticated(req) == false ) {
         // save referrer, redirect back on successful login
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
         let encoded_redirect_url = encodeURIComponent(req.url);
 
         res.redirect(`/login?ref=${encoded_redirect_url}`);
     }
+    else {
+        next();
+    }
 }
 
-app.get('/', function(req, res) {
-    enforceSession(req, res);
+app.get('/', enforceSession, function(req, res) {
     res.send(`If you've made it this far, you are probably authenticated.`)
 });
 

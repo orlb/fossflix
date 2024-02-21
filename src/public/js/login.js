@@ -39,7 +39,7 @@ function enforceCredentialRequirements () {
         requirement_status.valid = false;
         requirement_status.messages.push("Password must include an uppercase letter");
     }
-    if ( ! (/[@#%&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)) ) {
+    if ( ! (/[\_\@\#\%\&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)) ) {
         requirement_status.valid = false;
         requirement_status.messages.push("Password must include one special character");
     }
@@ -72,6 +72,7 @@ function submitLoginForm (action) {
 
         if ( xhr.status == '200' ) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
+            window.location.href = "/";
         }
         else if ( xhr.status == '400' ) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);

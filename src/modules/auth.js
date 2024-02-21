@@ -18,11 +18,11 @@ function enforceCredentialRequirements (req) {
         && /[_]/.test(user_credentials.uid)
         && ! /[A-Z]/.test(user_credentials.uid) 
         && ! /[\.]/.test(user_credentials.uid)
-        && ! /[@#%&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.uid)
+        && ! /[\@\#\%\&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.uid)
         && user_credentials.pwd.length >= 8
         && /[a-z]/.test(user_credentials.pwd)
         && /[A-Z]/.test(user_credentials.pwd)
-        && /[@#%&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)
+        && /[\_\@\#\%\&\\\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:\-]/.test(user_credentials.pwd)
         && ! /[\.]/.test(user_credentials.pwd)
     ) ) {
         return false;
@@ -102,7 +102,7 @@ function validateUserCredentials (req) {
                 login_attempts = JSON.parse(fs.readFileSync(login_attempts_file_path, { encoding: 'utf-8' }));
             }
             catch {
-                login_attempts = []; // { uid, time, success }
+                login_attempts = []; // { uid, time }
             }
         }
 
@@ -147,20 +147,19 @@ function validateUserCredentials (req) {
     }
 }
 
-function createUserSession () {
-    // return: user session ID | false
+function createUserSession (req) {
+    // return: user session ID
     // create user session on login
-    return 1;
+    // in the future, this will call query.js to store session with user in mongo, I think
+    // reference https://www.workfall.com/learning/blog/how-to-perform-a-session-based-user-authentication-in-express-js/
+
+    req.session.uid = req.body.uid;
+    return true;
 }
 
 function deleteUserSession () {
     // return: user session ID | false
     // delete user session on logout
-}
-
-function getUserSession () {
-    // return: user session ID | false
-    // query for user session
 }
 
 module.exports = {
@@ -185,7 +184,7 @@ module.exports = {
         let login_status = validateUserCredentials(req);
         
         if ( login_status.valid == true ) {
-            login_status.sessionid = createUserSession(req);
+            req.session.id = createUserSession(req);
             return login_status;
         }
         else {
@@ -193,11 +192,16 @@ module.exports = {
         }
     },
 
-    updateUserSession: function (req, res) {
+    isUserAuthenticated: function (req) {
         // return: true | false
-        // check session expiration, if it exists, and other things
-        
-        return false;
+        // check user session
+
+        if ( req.session.uid == undefined ) {
+            return false;
+        }
+        else {
+            return true;
+        }
     },
 
 }
