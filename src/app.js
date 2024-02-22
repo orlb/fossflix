@@ -2,10 +2,9 @@
 //
 //  Package entry point, express.js startup, configuration and routes
 
-const qs = require('querystring');
+const config = require('config');
 const path = require('path');
 const express = require('express');
-const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
@@ -13,7 +12,6 @@ const user = require('./modules/auth');
 
 
 const app = express();
-app.use(cookieParser()); // get cookies object at req.cookies
 app.use(bodyParser.json());
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory
 // https://expressjs.com/en/resources/middleware/session.html
@@ -29,9 +27,11 @@ function enforceSession (req, res, next) {
     if ( user.isUserAuthenticated(req) == false ) {
         // save referrer, redirect back on successful login
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-        let encoded_redirect_url = encodeURIComponent(req.url);
+        if ( req.baseUrl + req.path != '/login' ) {
+            let encoded_redirect_url = encodeURIComponent(req.url);
 
-        res.redirect(`/login?ref=${encoded_redirect_url}`);
+            res.redirect(`/login?ref=${encoded_redirect_url}`);
+        }
     }
     else {
         next();
@@ -73,5 +73,9 @@ app.post('/login', function(req, res) {
     }
 });
 
-app.listen(8443, '0.0.0.0');
-console.log('Server started at http://localhost:8443');
+
+const host = config.get('host');
+const port = config.get('port');
+
+app.listen(port, host);
+console.log(`Server started at http://${host}:${port}`);

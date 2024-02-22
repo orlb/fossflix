@@ -1,10 +1,12 @@
 function enforceCredentialRequirements () {
+    // return: { valid, messages }
+
     let form = document.getElementById('login_form').cloneNode(true);
     let user_credentials = {};
 
     (new FormData(form)).forEach((v, k) => user_credentials[k] = v);
 
-    requirement_status = { messages: [] };
+    let requirement_status = { messages: [] };
     requirement_status.valid = true;
 
     if ( ! (user_credentials.uid.length >= 4) ) {
@@ -51,6 +53,19 @@ function enforceCredentialRequirements () {
     return requirement_status;
 }
 
+function updateRequirementsDiv () {
+    let credential_requirements_div = document.getElementById('credential_requirements');
+    credential_requirements_div.innerHTML = '';
+
+    let credential_requirements = enforceCredentialRequirements();
+
+    for ( const message of credential_requirements.messages ) {
+        let p = document.createElement('p');
+        p.innerHTML = message;
+        credential_requirements_div.appendChild(p);
+    }
+}
+
 function submitLoginForm (action) {
     // post login_form input as json to /login
     let form = document.getElementById('login_form').cloneNode(true);
@@ -59,8 +74,6 @@ function submitLoginForm (action) {
     (new FormData(form)).forEach((v, k) => o[k] = v);
     o['action'] = action;
     o = JSON.stringify(o);
-
-    console.log(enforceCredentialRequirements());
 
     let xhr = new XMLHttpRequest();
     xhr.open("POST", "/login", true);
@@ -72,7 +85,21 @@ function submitLoginForm (action) {
 
         if ( xhr.status == '200' ) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
-            window.location.href = "/";
+            if ( action == 'login' ) {
+                // redirect to url encoded ref
+                let url_params = (new URLSearchParams(new URL(location.href).search));
+
+                if ( url_params.has('ref') ) {
+                    window.location.href = decodeURIComponent(url_params.get('ref'));
+                }
+                else {
+                    window.location.href = '/';
+                }
+            }
+            else {
+                document.getElementById('uid').value = '';
+                document.getElementById('pwd').value = '';
+            }
         }
         else if ( xhr.status == '400' ) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);

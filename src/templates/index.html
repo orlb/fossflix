@@ -1,63 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <script src="http://dorm:8443/js/login.js"/></script>
-    <style>
-        body {
-            background-color: #CF6A32;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: #000000;
-        }
-        form {
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 10px;
-            text-align: right;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-        }
-        .form-group label {
-            margin-right: 10px;
-            font-weight: bold; /* Make the text bold */
-        }
-        .form-container { /* Maybe remove this? */
-            border: 1px solid #000; 
-            padding: 20px;
-            display: inline-block;
-            background-color: #FFFFFF; /* Does white work best, or another TF2 color? */
-            border-radius: 10px;
-        }
-        input[type="text"] {
-            border: 1px solid #000;
-            padding: 5px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
+  <head>
+    <script src="/js/login.js"/></script>
+    <link rel="stylesheet" href="/css/login.css">
+  </head>
+  <body>
     <div class="form-container">
-        <form id="login_form">
-            <div class="form-group">
-                <label for="uid">UID:</label> <input type="text" name="uid" id="uid" value="">
-            </div>
-            <div class="form-group">
-                <label for="pwd">PWD:</label> <input type="password" name="pwd" id="pwd" value="">
-            </div>
-        </form>
-        <button onclick=submitLoginForm('login')>Login</button>
-        <button onclick=submitLoginForm('register')>Sign Up</button>
+      <form id="login_form">
+        <div class="form-group">
+          <label for="uid">UID:</label> <input onkeyup=updateRequirementsDiv() type="text" name="uid" id="uid" value="">
+        </div>
+        <div class="form-group">
+          <label for="pwd">PWD:</label> <input onkeyup=updateRequirementsDiv() type="password" name="pwd" id="pwd" value="">
+        </div>
+      </form>
+      <div id="credential_requirements"></div>
+      <button onclick=submitLoginForm('login')>Login</button>
+      <button onclick=submitLoginForm('register')>Sign Up</button>
     </div>
-
-</body>
+  </body>
 </html>

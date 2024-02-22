@@ -1,3 +1,5 @@
 node_modules/
 .eslintrc.js
 .tern-project
+src/data/users.json
+src/data/login_attempts.json

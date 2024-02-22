@@ -33,7 +33,7 @@ function enforceCredentialRequirements (req) {
 }
 
 function createUserRecord (req) {
-    // return: { true | false,  error code }
+    // return: { valid, message }
     // check for existing accounts, write to user data file
 
     let user_credentials = req.body;
@@ -67,7 +67,7 @@ function createUserRecord (req) {
         pwd: user_credentials.pwd
     } );
 
-    fs.writeFileSync(user_accounts_file_path, JSON.stringify(users), { encoding: 'utf8' });
+    fs.writeFileSync(user_accounts_file_path, JSON.stringify(users, null, 2), { encoding: 'utf8' });
 
     return { valid: true, message: "User created successfully" };
 }
@@ -78,7 +78,7 @@ function deleteUserRecord () {
 }
 
 function validateUserCredentials (req) {
-    // return: { true | false, attempts }
+    // return: { valid, message }
     // credential checking procedure
     // use req.body.uid, etc
     // write to login_attempts.json, get login attempts with time delta < 24 hours, lockout if > 5
@@ -129,7 +129,7 @@ function validateUserCredentials (req) {
                 uid: user_credentials.uid,
                 time: Date.now()
             } );
-            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts), { encoding: 'utf8' });
+            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts, null, 2), { encoding: 'utf8' });
             return { valid: false, message: `Login failed: ${5 - user_login_attempts.length} attempts remaining` };
         }
         else {
@@ -137,7 +137,7 @@ function validateUserCredentials (req) {
             login_attempts = login_attempts.filter( (attempt) => {
                 return attempt.uid != user_credentials.uid;
             } );
-            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts), { encoding: 'utf8' });
+            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts, null, 2), { encoding: 'utf8' });
             return { valid: true, message: "User credentials successfully validated" };
         }
     }
@@ -165,7 +165,7 @@ function deleteUserSession () {
 module.exports = {
 
     registerUserCredentials: function (req) {
-        // return: { true | false, error code }
+        // return: { valid, message }
         // check credentials and existing accounts, finally writing user record
         // email verification would go here, 2FA, etc.
 
@@ -178,13 +178,13 @@ module.exports = {
     },
 
     authenticateUser: function (req) {
-        // return: user session ID | false
+        // return: { valid, message }
         // set session ID, return response to client browser, client initiated redirect if successful
 
         let login_status = validateUserCredentials(req);
         
         if ( login_status.valid == true ) {
-            req.session.id = createUserSession(req);
+            createUserSession(req);
             return login_status;
         }
         else {
