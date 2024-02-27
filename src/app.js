@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 
 const user = require('./modules/auth');
+const query = require('./modules/query');
 
 
 const app = express();
