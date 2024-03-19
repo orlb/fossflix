@@ -93,7 +93,7 @@ function submitLoginForm (action) {
                     window.location.href = decodeURIComponent(url_params.get('ref'));
                 }
                 else {
-                    window.location.href = '/';
+                    window.location.href = '/home';
                 }
             }
             else {
@@ -105,4 +105,7 @@ function submitLoginForm (action) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
         }
     }
+}
+
+function updateMovie (action) {
 }

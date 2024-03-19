@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function enforceCredentialRequirements (req) {
+function _enforce_credential_requirements (req) {
     // return: true | false
     // succeeds client-side credential requirement checks
 
@@ -32,7 +32,7 @@ function enforceCredentialRequirements (req) {
     }
 }
 
-function createUserRecord (req) {
+function _create_user_record (req) {
     // return: { valid, message }
     // check for existing accounts, write to user data file
 
@@ -72,12 +72,12 @@ function createUserRecord (req) {
     return { valid: true, message: "User created successfully" };
 }
 
-function deleteUserRecord () {
+function _delete_user_record () {
     // return: true | false
     // remove user data
 }
 
-function validateUserCredentials (req) {
+function _validate_user_credentials (req) {
     // return: { valid, message }
     // credential checking procedure
     // use req.body.uid, etc
@@ -147,7 +147,7 @@ function validateUserCredentials (req) {
     }
 }
 
-function createUserSession (req) {
+function _create_user_session (req) {
     // return: user session ID
     // create user session on login
     // in the future, this will call query.js to store session with user in mongo, I think
@@ -157,34 +157,58 @@ function createUserSession (req) {
     return true;
 }
 
-function deleteUserSession () {
+function _delete_user_session () {
     // return: user session ID | false
     // delete user session on logout
 }
 
+function _is_user_authenticated (req) {
+    // return: true | false
+    // check user session
+
+    return req.session.uid == undefined ? false : true;
+}
+
 module.exports = {
+
+    enforceSession: function (req, res, next) {
+        // call at the start of every route where user must be authenticated
+        // send user to login if not authenticated
+
+        if ( _is_user_authenticated(req) == false ) {
+            // save referrer, redirect back on successful login
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
+            if ( req.baseUrl + req.path != '/login' ) {
+                let url = req.url;
+                url = req.url == '/' ? 'home' : url;
+                let encoded_redirect_url = encodeURIComponent(url);
+
+                res.redirect(`/login?ref=${encoded_redirect_url}`);
+            }
+        }
+        else {
+            next();
+        }
+    },
 
     registerUserCredentials: function (req) {
         // return: { valid, message }
         // check credentials and existing accounts, finally writing user record
         // email verification would go here, 2FA, etc.
 
-        if ( enforceCredentialRequirements(req) == true ) {
-            return createUserRecord(req);
-        }
-        else {
-            return { valid: false, message: 'User credentials do not meet security requirements' };
-        }
+        return _enforce_credential_requirements(req) == true
+            ? _create_user_record(req)
+            : { valid: false, message: 'User credentials do not meet security requirements' };
     },
 
     authenticateUser: function (req) {
         // return: { valid, message }
         // set session ID, return response to client browser, client initiated redirect if successful
 
-        let login_status = validateUserCredentials(req);
+        let login_status = _validate_user_credentials(req);
         
         if ( login_status.valid == true ) {
-            createUserSession(req);
+            _create_user_session(req);
             return login_status;
         }
         else {
@@ -192,16 +216,6 @@ module.exports = {
         }
     },
 
-    isUserAuthenticated: function (req) {
-        // return: true | false
-        // check user session
-
-        if ( req.session.uid == undefined ) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    },
+    isUserAuthenticated: _is_user_authenticated
 
 }

@@ -7,7 +7,7 @@ const client = new MongoClient(uri);
 const database = client.db(database);
 const movies = database.collection("users");
 
-async function queryDatabase(query) {
+async function _query_database (query) {
   try {
     let fieldName = "fname";
 

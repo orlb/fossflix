@@ -1,5 +1,6 @@
 node_modules/
 .eslintrc.js
 .tern-project
+.package-lock.json
 src/data/users.json
 src/data/login_attempts.json
