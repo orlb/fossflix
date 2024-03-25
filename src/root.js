@@ -2,15 +2,16 @@
 // Root router module
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 
 const user = require('./modules/user');
-// const query = require('./modules/query');
 
 const router = express.Router();
+router.use(bodyParser.json());
 
 router.get('/video/:video_id', user.enforceSession, function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./video/${req.params.video_id}.m4v`));
+    res.sendFile(path.join(path.dirname(require.main.filename), `./assets/video/${req.params.video_id}.m4v`));
 });
 
 router.get('/login', function(req, res) {
@@ -50,6 +51,10 @@ router.get('/', function(req, res) {
 
 router.get('/home', user.enforceSession, function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./templates/home.html`));
+});
+
+router.get('/edit', function(req, res) {
+    res.sendFile(path.join(path.dirname(require.main.filename), `./templates/edit.html`));
 });
 
 module.exports = router;

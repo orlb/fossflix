@@ -2,21 +2,21 @@
 <html>
   <head>
     <script src="/js/login.js"/></script>
-    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/base.css">
   </head>
   <body>
     <div class="form-container">
       <form id="login_form">
         <div class="form-group">
-          <label for="uid">UID:</label> <input onkeyup=updateRequirementsDiv() type="text" name="uid" id="uid" value="">
+          <label for="uid">UID:</label> <input onkeyup=_update_requirements_div() type="text" name="uid" id="uid" value="">
         </div>
         <div class="form-group">
-          <label for="pwd">PWD:</label> <input onkeyup=updateRequirementsDiv() type="password" name="pwd" id="pwd" value="">
+          <label for="pwd">PWD:</label> <input onkeyup=_update_requirements_div() type="password" name="pwd" id="pwd" value="">
         </div>
       </form>
       <div id="credential_requirements"></div>
-      <button onclick=submitLoginForm('login')>Login</button>
-      <button onclick=submitLoginForm('register')>Sign Up</button>
+      <button onclick=_submit_login_form('login')>Login</button>
+      <button onclick=_submit_login_form('register')>Sign Up</button>
     </div>
   </body>
 </html>

@@ -1,4 +1,4 @@
-function enforceCredentialRequirements () {
+const _enforce_credential_requirements = () => {
     // return: { valid, messages }
 
     let form = document.getElementById('login_form').cloneNode(true);
@@ -53,11 +53,11 @@ function enforceCredentialRequirements () {
     return requirement_status;
 }
 
-function updateRequirementsDiv () {
+const _update_requirements_div = () => {
     let credential_requirements_div = document.getElementById('credential_requirements');
     credential_requirements_div.innerHTML = '';
 
-    let credential_requirements = enforceCredentialRequirements();
+    let credential_requirements = _enforce_credential_requirements();
 
     for ( const message of credential_requirements.messages ) {
         let p = document.createElement('p');
@@ -66,8 +66,9 @@ function updateRequirementsDiv () {
     }
 }
 
-function submitLoginForm (action) {
+const _submit_login_form = (action) => {
     // post login_form input as json to /login
+    console.log(action);
     let form = document.getElementById('login_form').cloneNode(true);
     let o = {};
 
@@ -105,7 +106,4 @@ function submitLoginForm (action) {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
         }
     }
-}
-
-function updateMovie (action) {
 }

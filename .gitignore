@@ -4,3 +4,5 @@ node_modules/
 .package-lock.json
 src/data/users.json
 src/data/login_attempts.json
+src/upload/movie/*
+src/upload/thumbnail/*

@@ -9,7 +9,7 @@ Video web client. node, express.js
 ## Install
 
 ```bash
-sudo apt install npm nodejs
+sudo apt install ffmpeg npm nodejs
 cd fossflix
 npm install
 ```

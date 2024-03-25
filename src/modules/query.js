@@ -20,12 +20,26 @@ const searchMovie = async (title, sortMethod) => {
     }
 };
 
-const addMovie = async (filename, metadata) => {
+const addMovie = async (path, metadata) => {
     try {
         await client.connect();
-        const result = await movies.insertOne({ filename, metadata });
-        return { code: 201, record: result.ops[0] };
-    } finally {
+        const result = await movies.insertOne(
+            {
+                path: path,
+                title: metadata.title,
+                description: metadata.description,
+                upload_date: metadata.upload_date,
+                tags: metadata.tags,
+            },
+            { ignoreUndefined: true }
+        );
+        console.log(result);
+        return { code: 201 };
+    }
+    catch (err) {
+        console.log(err);
+    }
+    finally {
         await client.close();
     }
 };
