@@ -10,12 +10,16 @@ const users = database.collection("users");
 
 
 
-const searchMovie = async (title, sortMethod) => {
+const searchMovie = async (title, sort) => {
     try {
         await client.connect();
         const query = title ? { title: { $regex: title, $options: "i" } } : {};
-        return movies.find(query).sort({ [sortMethod]: -1 }).toArray();
-    } finally {
+        return await movies.find(query).sort({ [sort]: -1 }).toArray();
+    }
+    catch (err) {
+        console.log(err);
+    }
+    finally {
         await client.close();
     }
 };
@@ -28,7 +32,7 @@ const addMovie = async (path, metadata) => {
                 path: path,
                 title: metadata.title,
                 description: metadata.description,
-                upload_date: metadata.upload_date,
+                date: metadata.date,
                 tags: metadata.tags,
             },
             { ignoreUndefined: true }

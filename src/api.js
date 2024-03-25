@@ -13,8 +13,8 @@ const storage = multer.diskStorage({
     cb(null, path.join(path.dirname(require.main.filename), './upload/movie/'));
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '.' + mime.extension(file.mimetype));
+    const uniqueSuffix = Date.now() + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '.' + mime.extension(file.mimetype));
   }
 });
 const upload = multer({ storage: storage });
@@ -28,14 +28,14 @@ router.use(bodyParser.json());
 // Search movies
 router.get('/movies/search', function(req, res) {
     const title = req.query.title;
-    const sortMethod = 'uploadDate'; // Assuming you want to sort by upload date
-    query.searchMovie(title, sortMethod)
-        .then(movies => res.status(movies.code))
-        .catch(err => res.status(500).send(err.message));
+    const sort = req.query.sort || 'date';
+    query.searchMovie(title, sort)
+        .then(movies => res.status(200).json(movies))
+        .catch(err => {console.log(err); res.status(500).send(err.message)});
 });
 
 // Add movie
-router.post('/movies/add', upload.single('movie'), function(req, res) {
+router.post('/movies/add', user.enforceSession, upload.single('movie'), function(req, res) {
     const movie_path = path.relative(path.dirname(require.main.filename), req.file.path);
     const movie_metadata = req.body;
     console.log()
@@ -54,7 +54,7 @@ router.post('/movies/add', upload.single('movie'), function(req, res) {
 });
 
 // Remove movie
-router.delete('/api/movies/:id', function(req, res) {
+router.delete('/api/movies/:id', user.enforceSession, function(req, res) {
     const movieId = req.params.id;
     query.removeMovie(movieId)
         .then(code => res.sendStatus(code))
@@ -62,7 +62,7 @@ router.delete('/api/movies/:id', function(req, res) {
 });
 
 // Update movie
-router.put('/movies/update/:id', function(req, res) {
+router.put('/movies/update/:id', user.enforceSession, function(req, res) {
     const movieId = req.params.id;
     const metadata = req.body.metadata;
     query.updateMovie(movieId, metadata)

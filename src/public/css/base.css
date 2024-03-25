@@ -43,3 +43,9 @@ button {
     padding: 5px 10px;
     cursor: pointer;
 }
+
+.content-flex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}

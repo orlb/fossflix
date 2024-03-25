@@ -53,7 +53,7 @@ router.get('/home', user.enforceSession, function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./templates/home.html`));
 });
 
-router.get('/edit', function(req, res) {
+router.get('/edit', user.enforceSession, function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./templates/edit.html`));
 });
 

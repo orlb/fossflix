@@ -2,10 +2,22 @@
 <html>
   <head>
     <link rel="stylesheet" href="/css/base.css">
+    <script src="/js/query.js"/></script>
   </head>
   <body>
-    <iframe src="/video/1" frameborder="1"></iframe>
-    <div class="grid"></div>
+    <div id="movie_list" class="content-flex">
+    </div>
+    <script>
+      (async () => {
+        const movies = await _search_movie();
+        movies.forEach(movie => {
+            let movie_div = document.createElement('div');
+            movie_div.setAttribute('style', 'padding: 100px;');
+            movie_div.innerHTML = `<p><a href="${movie.path}">${movie.title}</a><br>${movie.description}</p>`;
+            document.getElementById("movie_list").appendChild(movie_div);
+        });
+      }) ();
+    </script>
   </body>
   <script>
   </script>

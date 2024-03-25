@@ -1,7 +1,8 @@
-const _search_movie = (title) => {
-    fetch(`/api/movies/search?title=${title}`, {})
+const _search_movie = async (title = '') => {
+    return await fetch(`/api/movies/search?title=${title}`)
     .then(response => {
         console.log(response.status);
+        return response.json();
     });
 }
 
