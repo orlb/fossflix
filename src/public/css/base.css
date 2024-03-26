@@ -49,3 +49,22 @@ button {
     flex-direction: row;
     flex-wrap: wrap;
 }
+
+.content-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.main-title {
+    color: #FFFFFF; /* Adjust the color according to your theme */
+    margin-bottom: 20px;
+}
+
+.link-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Adjust the space between buttons */
+}

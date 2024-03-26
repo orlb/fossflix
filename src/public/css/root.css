@@ -1,0 +1,58 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #121212; /* Dark background for modern look; can change */
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+.landing-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.landing-title {
+    font-size: 4rem;
+    color: #FF5722; /* Bright accent color */
+    margin-bottom: 0.5rem;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: #BBBBBB;
+    margin-bottom: 2rem;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.landing-button {
+    text-decoration: none;
+    color: #FFF;
+    background-color: #FF5722;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+    margin: 0 10px;
+}
+
+.landing-button:hover {
+    background-color: #E64A19;
+    transform: scale(1.05);
+}
+
+.login {
+    /* Login button specific styles if needed */
+}
+
+.edit {
+    /* Edit button specific styles if needed */
+}
