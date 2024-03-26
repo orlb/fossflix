@@ -1,24 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/base.css">
     <script src="/js/query.js"/></script>
   </head>
   <body>
-    <div id="movie_list" class="content-flex">
-    </div>
-    <script>
-      (async () => {
-        const movies = await _search_movie();
-        movies.forEach(movie => {
-            let movie_div = document.createElement('div');
-            movie_div.setAttribute('style', 'padding: 100px;');
-            movie_div.innerHTML = `<p><a href="${movie.path}">${movie.title}</a><br>${movie.description}</p>`;
-            document.getElementById("movie_list").appendChild(movie_div);
-        });
-      }) ();
-    </script>
+    <div id="movie_list" class="movie-list"></div>
   </body>
   <script>
+      _populate_movies_div(document.getElementById('movie_list'));
   </script>
 </html>

@@ -10,10 +10,6 @@ const user = require('./modules/user');
 const router = express.Router();
 router.use(bodyParser.json());
 
-router.get('/video/:video_id', user.enforceSession, function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./assets/video/${req.params.video_id}.m4v`));
-});
-
 router.get('/login', function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), './templates/login.html'));
 });
@@ -55,6 +51,19 @@ router.get('/home', user.enforceSession, function(req, res) {
 
 router.get('/edit', user.enforceSession, function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./templates/edit.html`));
+});
+
+router.get('/movie/:movie_id/thumbnail', user.enforceSession, function(req, res) {
+    res.sendFile(path.join(path.dirname(require.main.filename), `./upload/thumbnail/${req.params.movie_id}.mp4/tn.png`));
+});
+
+router.get('/movie/:movie_id/video', user.enforceSession, function(req, res) {
+    res.sendFile(path.join(path.dirname(require.main.filename), `./upload/movie/${req.params.movie_id}.mp4`));
+});
+
+router.get('/movie/:movie_id/watch', user.enforceSession, function(req, res) {
+    // render movie player template with video
+    res.status(200);
 });
 
 module.exports = router;

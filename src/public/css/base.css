@@ -1,11 +1,13 @@
 body {
+    font-size: 16px;
     background-color: #CF6A32;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     margin: 0;
     color: #000000;
+    overflow-y: scroll;
+    width: 100%;
 }
 form {
     text-align: center;
@@ -44,10 +46,20 @@ button {
     cursor: pointer;
 }
 
-.content-flex {
+.landing-page-wrapper {
+    width: 100%;
+    padding: 0 100px;
+}
+
+.content-flex-row {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+
+.content-flex-column {
+    display: flex;
+    flex-direction: column;
 }
 
 .content-center {
@@ -67,4 +79,23 @@ button {
     display: flex;
     justify-content: center;
     gap: 20px; /* Adjust the space between buttons */
+}
+
+.movie-div {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+}
+
+.movie-div a * {
+    color: white;
+    text-decoration: none;
+}
+
+.movie-list {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
 }

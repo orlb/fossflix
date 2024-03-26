@@ -1,7 +1,6 @@
 body, html {
     margin: 0;
     padding: 0;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11,6 +10,8 @@ body, html {
 }
 
 .landing-container {
+    margin-top: 200px;
+    margin-bottom: 50px;
     text-align: center;
     padding: 20px;
 }

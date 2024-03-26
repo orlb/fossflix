@@ -36,19 +36,17 @@ router.get('/movies/search', function(req, res) {
 
 // Add movie
 router.post('/movies/add', user.enforceSession, upload.single('movie'), function(req, res) {
-    const movie_path = path.relative(path.dirname(require.main.filename), req.file.path);
+    const movie_id = path.basename(req.file.path, '.mp4');
     const movie_metadata = req.body;
-    console.log()
+    console.log(req.file);
     // create movie thumbnail
-    ffmpeg.ffprobe(req.file.path, function (err, metadata) {
-        let proc = new ffmpeg(req.file.path)
-            .takeScreenshots(
-                { count: 1, timemarks: [ metadata.format.duration / 2 ] },
-                path.join(path.dirname(require.main.filename), '/upload/thumbnail/' + req.file.filename),
-                err => console.log(err)
-            );
-    });
-    query.addMovie(movie_path, movie_metadata)
+    new ffmpeg(req.file.path)
+        .takeScreenshots(
+            { size: '640x360', count: 1 },
+            path.join(path.dirname(require.main.filename), '/upload/thumbnail/' + req.file.filename),
+            err => console.log(err)
+        );
+    query.addMovie(movie_id, movie_metadata)
         .then(result => res.status(201).json(result))
         .catch(err => res.status(500).send(err.message));
 });

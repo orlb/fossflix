@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Fossflix</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fossflix</title>
+    <script src="/js/query.js"/></script>
+    <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/root.css">
 </head>
 <body>
+  <div class="landing-page-wrapper content-flex-column">
     <div class="landing-container">
         <h1 class="landing-title">Fossflix</h1>
         <p class="tagline">Explore the world of free and open-source software through video</p>
@@ -15,5 +18,10 @@
             <a href="/edit" class="landing-button edit">Edit</a>
         </div>
     </div>
+    <div id="movie_list" class="movie-list"></div>
+    <script>
+        _populate_movies_div(document.getElementById('movie_list'));
+    </script>
+  </div>
 </body>
 </html>

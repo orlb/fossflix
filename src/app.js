@@ -20,7 +20,6 @@ app.use(session({
 }));
 
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory
-app.use('/upload', express.static(path.join(path.dirname(require.main.filename), 'upload')));
 app.use('/', root);
 app.use('/api', api);
 

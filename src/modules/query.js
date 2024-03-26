@@ -24,16 +24,17 @@ const searchMovie = async (title, sort) => {
     }
 };
 
-const addMovie = async (path, metadata) => {
+const addMovie = async (id, metadata) => {
     try {
         await client.connect();
         const result = await movies.insertOne(
             {
-                path: path,
+                id: id,
                 title: metadata.title,
                 description: metadata.description,
-                date: metadata.date,
+                date: Date.now(),
                 tags: metadata.tags,
+                likes: 0
             },
             { ignoreUndefined: true }
         );
