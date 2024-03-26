@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="/js/login.js"/></script>
+    <script src="/js/login.js"></script>
     <link rel="stylesheet" href="/css/base.css">
+    <script>
+      // Make sure this script is placed correctly, either here with async handling or within the login.js file
+      function handleSubmit(event) {
+        event.preventDefault(); // Prevent the default form submission
+        _submit_login_form('login'); // Call the login function directly
+      }
+    </script>
   </head>
   <body>
     <div class="form-container">
-      <form id="login_form">
+      <form id="login_form" onsubmit="handleSubmit(event)">
         <div class="form-group">
-          <label for="uid">UID:</label> <input onkeyup=_update_requirements_div() type="text" name="uid" id="uid" value="">
+          <label for="uid">UID:</label>
+          <input onkeyup="_update_requirements_div()" type="text" name="uid" id="uid" value="">
         </div>
         <div class="form-group">
-          <label for="pwd">PWD:</label> <input onkeyup=_update_requirements_div() type="password" name="pwd" id="pwd" value="">
+          <label for="pwd">PWD:</label>
+          <input onkeyup="_update_requirements_div()" type="password" name="pwd" id="pwd" value="">
         </div>
+        <button type="submit">Login</button>
+        <button type="button" onclick="_submit_login_form('register')">Sign Up</button>
       </form>
       <div id="credential_requirements"></div>
-      <button onclick=_submit_login_form('login')>Login</button>
-      <button onclick=_submit_login_form('register')>Sign Up</button>
     </div>
   </body>
 </html>
