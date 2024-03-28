@@ -1,0 +1,10 @@
+extends base
+
+block head
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css')
+
+block content
+    #movie_list.movie-list
+
+    script.
+        _populate_movies_div(document.getElementById('movie_list'));

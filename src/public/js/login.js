@@ -51,7 +51,7 @@ const _enforce_credential_requirements = () => {
     } 
     
     return requirement_status;
-}
+};
 
 const _update_requirements_div = () => {
     let credential_requirements_div = document.getElementById('credential_requirements');
@@ -64,7 +64,7 @@ const _update_requirements_div = () => {
         p.innerHTML = message;
         credential_requirements_div.appendChild(p);
     }
-}
+};
 
 const _submit_login_form = (action) => {
     // post login_form input as json to /login
@@ -106,4 +106,4 @@ const _submit_login_form = (action) => {
             alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
         }
     }
-}
+};

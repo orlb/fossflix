@@ -1,0 +1,16 @@
+extends base
+
+block head
+    title Edit Content - Fossflix
+    link(rel='stylesheet', href='/css/edit.css')
+
+block content
+    .flex-column.al-cent
+        iframe(src='/movie/' + movie_object.id + '/video',
+            width='1280'
+            height='720'
+            frameborder='0')
+        h2= movie_object.title
+        h3= movie_object.description
+    script.
+        _populate_movies_div(document.getElementById('movie_list'));

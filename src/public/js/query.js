@@ -12,7 +12,7 @@ const _search_movie = async (title = '') => {
             description: "Check back later"
         } ];
     });
-}
+};
 
 const _add_movie = (form_id) => {
     const form = new FormData(document.getElementById(form_id));
@@ -22,29 +22,103 @@ const _add_movie = (form_id) => {
     })
     .then(response => {
         console.log(response.status);
+        if ( response.status == 201 ) {
+            alert("Movie successfully uploaded.")
+        }
+        else {
+            alert("Movie upload invalid.");
+        }
     });
-}
+};
 
-const _populate_movies_div = (element) => {
+const _delete_movie = (movie_id) => {
+    confirm(`Delete movie ${movie_id}?`) && fetch(`/api/movies/delete/${movie_id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        console.log(response.status);
+    });
+};
+
+const _update_movie = (movie_id) => {
+    confirm(`Delete movie ${movie_id}?`) && fetch(`/api/movies/delete/${movie_id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        console.log(response.status);
+    });
+};
+
+const _populate_movies_div = (movies_element, movie_id = '') => {
+    movies_element.innerHTML = '';
+    _search_movie(movie_id)
+        .then(movies => movies.forEach(movie => {
+            let movie_div = document.createElement('div');
+            movie_div.classList.add('movie-div');
+            movie_div.innerHTML = `
+                <a href="${movie.id ? '/movie/' + movie.id + '/watch' : ''}">
+                    <p>
+                        <img src="${movie.id ? '/movie/' + movie.id + '/thumbnail' : '/image/thumbnail.jpeg'}"
+                            width="256"
+                            height="144"
+                        />
+                        <br>
+                        ${movie.title}<br>
+                        ${movie.date ? 'Submitted ' + new Date(movie.date).toLocaleDateString("en-US") : ''}
+                    </p>
+                </a>
+            `;
+            movies_element.appendChild(movie_div);
+        }));
+};
+
+const _fill_movie_form = (movie_object, form_element) => {
+    console.log(form_element);
+    for ( let field of Object.keys(movie_object) ) {
+        console.log(field);
+        try {
+            let form_input_field = form_element.querySelector(
+                `input[name=${field}], textarea[name=${field}]`
+            );
+            form_input_field.value = movie_object[field];
+        }
+        catch (e) {
+            console.log(e);
+        }
+        finally {
+            continue;
+        }
+    }
+};
+
+const _populate_edit_movies_div = (movies_element, form_element, click_callback = _fill_movie_form) => {
+    movies_element.innerHTML = '';
     _search_movie()
         .then(movies => movies.forEach(movie => {
-                let date = new Date(movie.date);
-                let movie_div = document.createElement('div');
-                movie_div.classList.add('movie-div');
-                movie_div.innerHTML = `
-                    <a href="${movie.id ? '/movie/' + movie.id + '/video' : ''}">
-                        <p>
-                            <img src="${movie.id ? '/movie/' + movie.id + '/thumbnail' : '/image/thumbnail.jpeg' }"
-                                width="256"
-                                height="144"
-                            />
-                            <br>
-                            ${movie.title}<br>
-                            ${ movie.date ? 'Submitted ' + date.toLocaleDateString("en-US") : ''}
-                        </p>
-                    </a>
-                `;
-                element.appendChild(movie_div);
-            })
-        );
-}
+            let movie_div = document.createElement('div');
+            movie_div.id = movie.id;
+            movie_div.classList.add('movie-div');
+            let movie_button = document.createElement('button');
+            movie_button.onclick = () => {click_callback(movie, form_element)}; // function that calls callback
+            movie_button.classList.add('colo-none');
+            movie_button.innerHTML = `
+                <p>
+                    <img src="${movie.id ? '/movie/' + movie.id + '/thumbnail' : '/image/thumbnail.jpeg'}"
+                        width="256"
+                        height="144"
+                    />
+                    <br>
+                    ${movie.title}<br>
+                    ${movie.date ? 'Submitted ' + new Date(movie.date).toLocaleDateString("en-US") : ''}
+                </p>
+            `;
+            movie_div.appendChild(movie_button);
+            movies_element.appendChild(movie_div);
+        }));
+};
+
+const _delete_movie_from_form = (form_element) => {
+    const movie_id = form_element.querySelector('input[name=id]');
+    _delete_movie(movie_id.value);
+    return true;
+};

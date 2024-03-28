@@ -1,0 +1,18 @@
+extends base
+
+block head
+    title Fossflix
+    link(rel='stylesheet', href='/css/root.css')
+
+block content
+    .landing-container
+        h1.landing-title Fossflix
+        p.tagline Explore the world of free and open-source software through video
+        // .buttons-container
+        //     a.landing-button.login(href='/login') Login
+        //     a.landing-button.edit(href='/edit') Edit
+
+        #movie_list.movie-list.just-cent
+
+    script.
+        _populate_movies_div(document.getElementById('movie_list'));

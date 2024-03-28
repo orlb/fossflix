@@ -1,0 +1,25 @@
+extends base
+
+block head
+    title Edit Content - Fossflix
+    link(rel='stylesheet', href='/css/edit.css')
+
+block content
+    .edit-container
+        h1.edit-title Upload Movie
+
+        form#movie_upload_form.edit-form
+            .input-group
+                label(for='title') Title
+                input(type='text', name='title', placeholder='Enter movie title')
+            .input-group
+                label(for='description') Description
+                textarea(name='description', placeholder='Enter movie description')
+            .input-group
+                label(for='tags') Tags
+                input(type='text', name='tags', placeholder='Enter tags, separated by commas')
+            .input-group
+                label(for='movie') Movie File
+                input.edit-input.file-input(type='file', name='movie')
+
+        button.submit-button(onclick="_add_movie('movie_upload_form')") Upload Movie

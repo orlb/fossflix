@@ -1,0 +1,47 @@
+extends base
+
+block head
+    title Edit Content - Fossflix
+    link(rel='stylesheet', href='/css/edit.css')
+
+block content
+    .flex-column.al-cent.gap-20
+        a(href='/edit/upload')
+            button.button.w-auto.center Upload Movies
+
+        .edit-wrapper
+            .edit-container
+                h1.edit-title Edit Movie
+
+                form#movie_edit_form.edit-form
+                    .input-group
+                        label(for='id') ID
+                        input(type='text', name='id', placeholder='Enter movie ID')
+                    .input-group
+                        label(for='title') Title
+                        input(type='text', name='title', placeholder='Enter movie title')
+                    .input-group
+                        label(for='description') Description
+                        textarea(name='description', placeholder='Enter movie description')
+                    .input-group
+                        label(for='tags') Tags
+                        input(type='text', name='tags', placeholder='Enter tags, separated by commas')
+
+                button.button.save(onclick="_update_movie(document.getElementById('movie_edit_form')) \
+                    && _populate_edit_movies_div(  \
+                        document.getElementById('movie_list'), \
+                        document.getElementById('movie_edit_form') \
+                    )") Update Movie
+
+                button.button.delete(onclick="_delete_movie_from_form(document.getElementById('movie_edit_form')) \
+                    && _populate_edit_movies_div(  \
+                        document.getElementById('movie_list'), \
+                        document.getElementById('movie_edit_form') \
+                    )") Delete Movie
+
+            #movie_list.movie-list.of-y
+    script.
+        _populate_edit_movies_div(
+            document.getElementById('movie_list'),
+            document.getElementById('movie_edit_form')
+        );

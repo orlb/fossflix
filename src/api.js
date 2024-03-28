@@ -52,9 +52,9 @@ router.post('/movies/add', user.enforceSession, upload.single('movie'), function
 });
 
 // Remove movie
-router.delete('/api/movies/:id', user.enforceSession, function(req, res) {
-    const movieId = req.params.id;
-    query.removeMovie(movieId)
+router.delete('/movies/delete/:id', user.enforceSession, function(req, res) {
+    const movie_id = req.params.id;
+    query.removeMovie(movie_id)
         .then(code => res.sendStatus(code))
         .catch(err => res.status(500).send(err.message));
 });

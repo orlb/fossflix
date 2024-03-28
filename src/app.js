@@ -12,11 +12,13 @@ const root = require('./root');
 const api = require('./api');
 
 const app = express();
+app.set('view engine', 'pug');
+app.set('views', path.join(path.dirname(require.main.filename), 'views'));
 
 // https://expressjs.com/en/resources/middleware/session.html
 app.use(session({
     secret: 'fossflixsecretjnkgsdaioxzdgvuoptwjklntqljkhjksc',
-    cookie: { maxAge: 30 * 60 * 1000 } // 30 second session timeout
+    cookie: { maxAge: 30 * 60 * 1000 } // 30 minute session timeout
 }));
 
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory

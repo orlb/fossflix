@@ -1,0 +1,23 @@
+extends base
+
+block head
+    title Edit Content - Fossflix
+    link(rel='stylesheet', href='/css/edit.css')
+
+block content
+    .flex-column.al-cent
+        .edit-container.w-100pc
+            h1.edit-title Search Movie
+
+            .edit-form
+                .input-group
+                    input(type='text', name='id',
+                        onchange="_populate_movies_div( \
+                            document.getElementById('movie_list'), \
+                            this.value \
+                        )"
+                        placeholder='Enter movie title')
+
+        #movie_list.movie-list.of-y
+    script.
+        _populate_movies_div(document.getElementById('movie_list'));

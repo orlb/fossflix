@@ -1,0 +1,21 @@
+doctype html
+html
+    head
+        meta(charset='UTF-8')
+        meta(name='viewport', content='width=device-width', initial-scale=1.0)
+        script(src='/js/query.js')
+        link(rel='stylesheet', href='/css/base.css')
+
+    block head
+
+    body
+        .navbar
+            a(href='/', style='margin-right: auto;') Fossflix
+            a(href='/home') Home
+            a(href='/search') Search
+            a(href='/edit') Edit
+            a(href='/admin') Admin
+            a(href='/login', style='margin-left: auto;') Login
+
+        .content-wrapper
+            block content

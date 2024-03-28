@@ -6,12 +6,22 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const user = require('./modules/user');
+const query = require('./modules/query');
 
 const router = express.Router();
 router.use(bodyParser.json());
 
+router.get('/', function(req, res) {
+    res.render('root');
+});
+
 router.get('/login', function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), './templates/login.html'));
+    if ( user.isUserAuthenticated(req) ) {
+        res.redirect('/');
+    }
+    else {
+        res.render('login');
+    }
 });
 
 router.post('/login', function(req, res) {
@@ -41,29 +51,35 @@ router.post('/login', function(req, res) {
     }
 });
 
-router.get('/', function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./templates/root.html`));
-});
-
 router.get('/home', user.enforceSession, function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./templates/home.html`));
+    res.render('home');
 });
 
 router.get('/edit', user.enforceSession, function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./templates/edit.html`));
+    res.render('edit');
 });
 
-router.get('/movie/:movie_id/thumbnail', user.enforceSession, function(req, res) {
+router.get('/edit/upload', user.enforceSession, function(req, res) {
+    res.render('edit-upload');
+});
+
+router.get('/search', user.enforceSession, function(req, res) {
+    res.render('search');
+});
+
+router.get('/movie/:movie_id/watch', user.enforceSession, function(req, res) {
+    const movie_id = req.params.movie_id;
+    query.getMovie(movie_id)
+        .then(movie_object => res.render('watch', {movie_object: movie_object}))
+        .catch(err => res.status(500).send(err.message));
+});
+
+router.get('/movie/:movie_id/thumbnail', function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./upload/thumbnail/${req.params.movie_id}.mp4/tn.png`));
 });
 
 router.get('/movie/:movie_id/video', user.enforceSession, function(req, res) {
     res.sendFile(path.join(path.dirname(require.main.filename), `./upload/movie/${req.params.movie_id}.mp4`));
-});
-
-router.get('/movie/:movie_id/watch', user.enforceSession, function(req, res) {
-    // render movie player template with video
-    res.status(200);
 });
 
 module.exports = router;

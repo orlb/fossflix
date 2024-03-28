@@ -1,0 +1,23 @@
+extends base
+
+block head
+    link(rel='stylesheet', href='/css/edit.css')
+    script(src='/js/login.js')
+
+block content
+
+    .flex-column.al-cent.gap-20
+        .edit-container
+            h1.edit-title Authenticate
+
+            form#login_form.edit-form(onsubmit="(event => event.preventDefault()) (event)")
+                .input-group
+                    label(for='uid') Username
+                    input(type='text', name='uid', id='uid', value='', onkeyup="_update_requirements_div()")
+                .input-group
+                    label(for='pwd') Password
+                    input(type='password', name='pwd', id='pwd', value='', onkeyup="_update_requirements_div()")
+                button(onclick="_submit_login_form('login')") Login
+                button(onclick="_submit_login_form('register')") Sign Up
+
+            #credential_requirements

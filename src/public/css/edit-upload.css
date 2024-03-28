@@ -1,19 +1,13 @@
 .content-wrapper {
-    padding: 0 40px;
-    padding-top: 30px;
+    margin: 0;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
     background-color: #121212;
     color: #ffffff;
     font-family: 'Arial', sans-serif;
-}
-
-.edit-wrapper {
-    display: grid;
-    grid-template-columns: 1.25fr 3fr;
-    max-height: 70vh;
-    gap: 30px;
 }
 
 .edit-container {
@@ -47,7 +41,6 @@
 }
 
 .input-group input[type="text"],
-.input-group input[type="password"],
 .input-group textarea,
 .input-group input[type="file"] {
     width: 100%; /* Ensuring all input fields and textarea have the same width */
@@ -78,8 +71,4 @@
 
 .submit-button:hover {
     background-color: #E64A19;
-}
-
-.of-y {
-    overflow-y: scroll;
 }
