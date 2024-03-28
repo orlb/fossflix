@@ -49,10 +49,10 @@ const addMovie = async (id, metadata) => {
     }
 };
 
-const removeMovie = async (movieId) => {
+const removeMovie = async (id) => {
     try {
         await client.connect();
-        await movies.deleteOne({ _id: new MongoClient.ObjectID(movieId) });
+        await movies.deleteOne({ id: id });
         return 204; // 'No Content'
     } finally {
         await client.close();

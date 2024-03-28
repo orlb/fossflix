@@ -21,11 +21,31 @@ const _add_movie = (form_id) => {
         body: form,
     })
     .then(response => {
+	alert(
+	    response.status == 201
+	    ? "Movie successfully uploaded."
+	    : "Movie upload failed."
+	)
+    });
+}
+
+const _delete_movie = (movie_id) => {
+    fetch(`/api/movies/delete/${movie_id}`, {
+	method: 'DELETE'
+    })
+    .then(response => {
         console.log(response.status);
     });
 }
 
-const _populate_movies_div = (element) => {
+const _delete_and_refresh_movies_div = (movie_id, div_id) => {
+	_delete_movie(movie_id);
+	const movies_div = document.getElementById(div_id);
+	movies_div.innerHTML = '';
+	_populate_movies_div(movies_div, true);
+}
+
+const _populate_movies_div = (element, edit = false) => {
     _search_movie()
         .then(movies => movies.forEach(movie => {
                 let date = new Date(movie.date);
@@ -43,6 +63,7 @@ const _populate_movies_div = (element) => {
                             ${ movie.date ? 'Submitted ' + date.toLocaleDateString("en-US") : ''}
                         </p>
                     </a>
+		    ${edit ? '<button onclick="_delete_and_refresh_movies_div(\'' + movie.id + '\', \'' + element.id + '\')">Delete</button>' : ''}
                 `;
                 element.appendChild(movie_div);
             })

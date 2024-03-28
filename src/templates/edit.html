@@ -11,7 +11,7 @@
     <div class="edit-container">
         <h1 class="edit-title">Edit Movie</h1>
         <!-- Updated form with enctype and method for file upload, and styling class names -->
-        <form id="movie_upload_form" class="edit-form" enctype="multipart/form-data">
+        <form id="movie_upload_form" class="edit-form">
             <div class="input-group">
                 <label for="title">Title</label>
                 <input type="text" name="title" placeholder="Enter movie title"></input>
@@ -28,10 +28,13 @@
                 <label for="movie">Movie File</label>
                 <input type="file" name="movie" class="edit-input file-input"></input>
             </div>
-            <button type="submit" class="submit-button" onclick="_add_movie('movie_upload_form')">Upload Video</button>
-            
         </form>
+    <button class="submit-button" onclick="_add_movie('movie_upload_form')">Upload Video</button>
     </div>
-    <script></script>
+    <div id="movies_div">
+    </div>
+    <script>
+	    _populate_movies_div(document.getElementById('movies_div'), true);
+    </script>
 </body>
 </html>
