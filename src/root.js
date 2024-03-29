@@ -24,31 +24,39 @@ router.get('/login', function(req, res) {
     }
 });
 
-router.post('/login', function(req, res) {
+router.post('/login', async function(req, res) {
     let login_form = req.body;
 
-    if ( login_form.action == 'register' ) {
-        // login form 'register' button clicked
-        console.log('Attempting account registration for user: ' + login_form.uid);
+    try {
+        if (login_form.action === 'register') {
+            console.log('Attempting account registration for user: ' + login_form.uid);
+            let registration_status = await user.registerUserCredentials(req);
+            console.log(registration_status);
+            let response_code = registration_status.valid ? 200 : 400;
+            res.status(response_code).json(registration_status);
+        } else if (login_form.action === 'login') {
+            console.log('Attempting to authenticate user: ' + login_form.uid);
+            // Use await to handle the promise returned by authenticateUser
+            let login_status = await user.authenticateUser(req);
+            console.log(login_status);
+            let response_code = login_status.valid ? 200 : 400;
+            res.status(response_code).json(login_status);
+        } else {
+            res.sendStatus(400);
+        }
+    } catch (error) {
+        console.error('Error during login or registration:', error);
+        res.status(500).json({ valid: false, message: 'Server error occurred' });
+    }
+});
 
-        let registration_status = user.registerUserCredentials(req);
-        console.log(registration_status);
-        let j = JSON.stringify(registration_status);
-        let response_code = registration_status.valid ? 200 : 400
-        res.status(response_code).json(j);
-    }
-    else if ( login_form.action == 'login' ) {
-        console.log('Attempting to authenticate user: ' + login_form.uid);
-
-        let login_status = user.authenticateUser(req) 
-        console.log(login_status);
-        let j = JSON.stringify(login_status);
-        let response_code = login_status.valid ? 200 : 400
-        res.status(response_code).json(j);
-    }
-    else {
-        res.sendStatus(400);
-    }
+router.get('/logout', function(req, res) {
+    req.session.destroy(err => {
+        if(err) {
+            console.error("Error destroying session:", err);
+        }
+        res.redirect('/login');
+    });
 });
 
 router.get('/home', user.enforceSession, function(req, res) {

@@ -1,10 +1,16 @@
 //  auth.js
 //
 //  Provides user handling functions
-//  Requires: fs, Express, cookie-parser app.use(bodyParser.json())
+//  Requires: MongoClient, Express, cookie-parser app.use(bodyParser.json())
 
-const fs = require('fs');
 const path = require('path');
+const { MongoClient } = require('mongodb');
+const config = require('config');
+const uri = config.get('mongodb_uri');
+const client = new MongoClient(uri);
+const database_name = config.get('mongodb_db');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 function _enforce_credential_requirements (req) {
     // return: true | false
@@ -32,128 +38,102 @@ function _enforce_credential_requirements (req) {
     }
 }
 
-function _create_user_record (req) {
-    // return: { valid, message }
-    // check for existing accounts, write to user data file
-
-    let user_credentials = req.body;
-    let user_accounts_file_path = path.join(path.dirname(require.main.filename), 'data/users.json');
-    let users;
+async function _create_user_record(req) {
     try {
-        users = JSON.parse(fs.readFileSync(user_accounts_file_path, { encoding: 'utf-8' }));
-    }
-    catch {
-        // create file if it doesn't exist
-        fs.openSync(user_accounts_file_path, 'w');
-        try {
-            users = JSON.parse(fs.readFileSync(user_accounts_file_path, { encoding: 'utf-8' }));
+        await client.connect();
+        const database = client.db(database_name);
+        const users = database.collection('users');
+
+        const userCredentials = req.body;
+        const existingUser = await users.findOne({ uid: userCredentials.uid });
+        if (existingUser) {
+            console.log("User already exists: ", userCredentials.uid); // Logging for clarity
+            return { valid: false, message: 'User already exists' };
         }
-        catch {
-            users = [];
-        }
+        
+        const hashedPassword = await bcrypt.hash(userCredentials.pwd, saltRounds);
+
+        const result = await users.insertOne({
+            uid: userCredentials.uid,
+            pwd: hashedPassword, // Consider hashing the password before storing
+            // Add any other user details here
+        });
+
+        console.log("User created successfully: ", result); // Logging for clarity
+        return { valid: true, message: 'User created successfully' };
+    } catch (err) {
+        console.error("Error creating user record: ", err); // More descriptive error logging
+        return { valid: false, message: 'An error occurred' };
+    } finally {
+        await client.close();
     }
-
-    // check for existing account
-    let matched_user = users.find( (user) => {
-        return user.uid == user_credentials.uid;
-    } );
-    if ( matched_user != undefined ) {
-        return { valid: false, message: "User already exists" };
-    }
-
-    // add user account
-    users.push( {
-        uid: user_credentials.uid,
-        pwd: user_credentials.pwd
-    } );
-
-    fs.writeFileSync(user_accounts_file_path, JSON.stringify(users, null, 2), { encoding: 'utf8' });
-
-    return { valid: true, message: "User created successfully" };
 }
+
 
 function _delete_user_record () {
     // return: true | false
     // remove user data
 }
 
-function _validate_user_credentials (req) {
-    // return: { valid, message }
-    // credential checking procedure
-    // use req.body.uid, etc
-    // write to login_attempts.json, get login attempts with time delta < 24 hours, lockout if > 5
-    // successful login resets login attempts
+async function _validate_user_credentials(req) {
+    let userCredentials = req.body;
+    let loginAttemptsFile = path.join(path.dirname(require.main.filename), 'data/login_attempts.json');
 
-    let user_credentials = req.body;
-    let user_accounts_file_path = path.join(path.dirname(require.main.filename), 'data/users.json');
-    let login_attempts_file_path = path.join(path.dirname(require.main.filename), 'data/login_attempts.json');
-
-    let users;
     try {
-        users = JSON.parse(fs.readFileSync(user_accounts_file_path, { encoding: 'utf-8' }));
+        await client.connect();
+        const database = client.db(database_name);
+        const users = database.collection('users');
 
-        try {
-            login_attempts = JSON.parse(fs.readFileSync(login_attempts_file_path, { encoding: 'utf-8' }));
+        // Check for existing account
+        const user = await users.findOne({ uid: userCredentials.uid });
+        if (!user) {
+            return { valid: false, message: "Login failed: User does not exist" }; 
         }
-        catch {
-            // create file if it doesn't exist
-            fs.openSync(login_attempts_file_path, 'w');
-            try {
-                login_attempts = JSON.parse(fs.readFileSync(login_attempts_file_path, { encoding: 'utf-8' }));
+
+        // Validate password
+        const isPasswordValid = await bcrypt.compare(userCredentials.pwd, user.pwd);
+        if (!isPasswordValid) {
+            return { valid: false, message: "Invalid credentials" };
+        }
+
+        const MAX_LOGIN_ATTEMPTS = 5;
+        const LOCK_OUT_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+        const now = new Date();
+        if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+            // Check if the lockout time has passed
+            if (now - user.lastAttempt < LOCK_OUT_TIME) {
+                // User is still locked out
+                return { valid: false, message: "Account locked due to too many failed login attempts. Please try again later." };
+        } else {
+                // Lockout time has passed, reset the attempts
+                await users.updateOne({ uid: userCredentials.uid }, { $set: { loginAttempts: 1, lastAttempt: now } });
             }
-            catch {
-                login_attempts = []; // { uid, time }
-            }
+        } else if (!isPasswordValid) {
+            // Increment login attempts
+            await users.updateOne({ uid: userCredentials.uid }, { $inc: { loginAttempts: 1 }, $set: { lastAttempt: now } });
+            return { valid: false, message: "Invalid credentials" };
         }
 
-        // check for existing account
-        let matched_user = users.find( (user) => {
-            return user.uid == user_credentials.uid;
-        } );
-        if ( matched_user == undefined ) {
-            return { valid: false, message: "Login failed" };
+        if (isPasswordValid) {
+            // Reset login attempts on successful login
+            await users.updateOne({ uid: userCredentials.uid }, { $set: { loginAttempts: 0, lastAttempt: now } });
+            // Proceed with creating a session or token for the user
         }
 
-        let user_login_attempts = login_attempts.filter( (attempt) => {
-            // attempts within the last 24 hours
-            return attempt.uid == user_credentials.uid
-            && (new Date(attempt.time).valueOf() - (new Date().valueOf() - 24 * 60 * 60 * 1000)) > 0;
-        } );
-
-        if ( user_login_attempts.length > 5 ) {
-            return { valid: false, message: "Login failed: Account Locked" };
-        }
-
-        if ( matched_user.pwd != user_credentials.pwd ) {
-            login_attempts.push( {
-                uid: user_credentials.uid,
-                time: Date.now()
-            } );
-            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts, null, 2), { encoding: 'utf8' });
-            return { valid: false, message: `Login failed: ${5 - user_login_attempts.length} attempts remaining` };
-        }
-        else {
-            // reset user login attempts
-            login_attempts = login_attempts.filter( (attempt) => {
-                return attempt.uid != user_credentials.uid;
-            } );
-            fs.writeFileSync(login_attempts_file_path, JSON.stringify(login_attempts, null, 2), { encoding: 'utf8' });
-            return { valid: true, message: "User credentials successfully validated" };
-        }
-    }
-    catch ( err ) {
-        console.log(err);
-        return { valid: false, message: "Login failed" };
+        // If everything checks out
+        return { valid: true, message: "User credentials successfully validated", redirect: "/home"};
+    } catch (err) {
+        console.error(err);
+        return { valid: false, message: "An error occurred during login" };
+    } finally {
+        await client.close();
     }
 }
 
-function _create_user_session (req) {
-    // return: user session ID
-    // create user session on login
-    // in the future, this will call query.js to store session with user in mongo, I think
-    // reference https://www.workfall.com/learning/blog/how-to-perform-a-session-based-user-authentication-in-express-js/
-
-    req.session.uid = req.body.uid;
+function _create_user_session(req) {
+    req.session.uid = req.body.uid; // Assigning UID to the session
+    req.session.save(); // Explicitly save the session
     return true;
 }
 
@@ -162,34 +142,23 @@ function _delete_user_session () {
     // delete user session on logout
 }
 
-function _is_user_authenticated (req) {
-    // return: true | false
-    // check user session
-
-    return req.session.uid == undefined ? false : true;
+function _is_user_authenticated(req) {
+    // Check if the user ID is stored in the session
+    return req.session.uid !== undefined;
 }
 
 module.exports = {
 
     enforceSession: function (req, res, next) {
-        // call at the start of every route where user must be authenticated
-        // send user to login if not authenticated
-
-        if ( _is_user_authenticated(req) == false ) {
-            // save referrer, redirect back on successful login
-            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-            if ( req.baseUrl + req.path != '/login' ) {
-                let url = req.url;
-                url = req.url == '/' ? 'home' : url;
-                let encoded_redirect_url = encodeURIComponent(url);
-
-                res.redirect(`/login?ref=${encoded_redirect_url}`);
-            }
-        }
-        else {
+        if (_is_user_authenticated(req) == false) {
+            let url = req.url == '/' ? 'home' : req.url;
+            let encoded_redirect_url = encodeURIComponent(url);
+            res.redirect(`/login?ref=${encoded_redirect_url}`);
+        } else {
             next();
         }
     },
+
 
     registerUserCredentials: function (req) {
         // return: { valid, message }
@@ -201,18 +170,17 @@ module.exports = {
             : { valid: false, message: 'User credentials do not meet security requirements' };
     },
 
-    authenticateUser: function (req) {
-        // return: { valid, message }
-        // set session ID, return response to client browser, client initiated redirect if successful
+    authenticateUser: async function (req) {
+        // Directly return the promise from _validate_user_credentials
+        // This ensures that authenticateUser itself returns a promise
+        let login_status = await _validate_user_credentials(req);
 
-        let login_status = _validate_user_credentials(req);
-        
-        if ( login_status.valid == true ) {
+        if (login_status.valid === true) {
             _create_user_session(req);
-            return login_status;
-        }
-        else {
-            return login_status;
+            // No need to explicitly save the session here as it's handled by express-session middleware
+            return login_status; // Return the login status object
+        } else {
+            return login_status; // Ensure to return login status even if validation fails
         }
     },
 

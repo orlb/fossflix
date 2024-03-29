@@ -67,43 +67,32 @@ const _update_requirements_div = () => {
 };
 
 const _submit_login_form = (action) => {
-    // post login_form input as json to /login
-    console.log(action);
-    let form = document.getElementById('login_form').cloneNode(true);
-    let o = {};
+    let form = document.getElementById('login_form');
+    let formData = new FormData(form);
+    let object = {};
+    formData.forEach((value, key) => object[key] = value);
+    object['action'] = action;
+    let json = JSON.stringify(object);
 
-    (new FormData(form)).forEach((v, k) => o[k] = v);
-    o['action'] = action;
-    o = JSON.stringify(o);
-
-    let xhr = new XMLHttpRequest();
-    xhr.open("POST", "/login", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(o);
-
-    xhr.onload = () => {
-        let login_status = JSON.parse(JSON.parse(xhr.responseText));
-
-        if ( xhr.status == '200' ) {
-            alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
-            if ( action == 'login' ) {
-                // redirect to url encoded ref
-                let url_params = (new URLSearchParams(new URL(location.href).search));
-
-                if ( url_params.has('ref') ) {
-                    window.location.href = decodeURIComponent(url_params.get('ref'));
-                }
-                else {
-                    window.location.href = '/home';
-                }
-            }
-            else {
-                document.getElementById('uid').value = '';
-                document.getElementById('pwd').value = '';
-            }
+    fetch("/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: json,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            alert(`Login successful: ${data.message}`);
+            window.location.href = '/home'; // or data.redirect if specified
+        } else {
+            alert(`Login failed: ${data.message}`);
         }
-        else if ( xhr.status == '400' ) {
-            alert(`Success: ${login_status['valid']}\nMessage: ${login_status['message']}`);
-        }
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while attempting to login.');
+    });
 };
+

@@ -18,7 +18,9 @@ app.set('views', path.join(path.dirname(require.main.filename), 'views'));
 // https://expressjs.com/en/resources/middleware/session.html
 app.use(session({
     secret: 'fossflixsecretjnkgsdaioxzdgvuoptwjklntqljkhjksc',
-    cookie: { maxAge: 30 * 60 * 1000 } // 30 minute session timeout
+    cookie: { maxAge: 30 * 60 * 1000 }, // 30 minute session timeout
+    resave: false, // Don't save session if unmodified
+    saveUninitialized: false, // Don't create session until something stored
 }));
 
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory
