@@ -1,0 +1,20 @@
+extends base
+
+block head
+    link(rel='stylesheet', href='/css/edit.css')
+    script(src='/js/login.js')
+
+block content
+
+    .flex-column.al-cent.gap-20
+        .edit-container
+            h1.edit-title Choose role
+
+            form#role_form.edit-form(onsubmit="(event => event.preventDefault()) (event)")
+                .input-group
+                    select(name='role')
+                        option(value='viewer') Viewer
+                        option(value='editor') Editor
+                        option(value='marketing') Marketing
+                        option(value='administrator') Administrator
+                button(onclick="_submit_role_form(document.getElementById('role_form'))") Confirm Role

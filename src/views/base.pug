@@ -5,17 +5,21 @@ html
         meta(name='viewport', content='width=device-width', initial-scale=1.0)
         script(src='/js/query.js')
         link(rel='stylesheet', href='/css/base.css')
-
-    block head
+        block head
 
     body
         .navbar
             a(href='/', style='margin-right: auto;') Fossflix
             a(href='/home') Home
             a(href='/search') Search
-            a(href='/edit') Edit
-            a(href='/admin') Admin
-            a(href='/login', style='margin-left: auto;') Login
+            if fossflix_user.role == 'editor'
+                a(href='/edit') Edit
+            if fossflix_user.role == 'administrator'
+                a(href='/admin') Admin
+            if ! fossflix_user.uid
+                a(href='/login', style='margin-left: auto;') Login
+            else
+                a(href='/logout', style='margin-left: auto;') Logout
 
         .content-wrapper
             block content

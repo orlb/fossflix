@@ -45,8 +45,8 @@ const _create_user_record = async (req) => {
         const users = database.collection('users');
 
         const userCredentials = req.body;
-        const existingUser = await users.findOne({ uid: userCredentials.uid });
-        if (existingUser) {
+        const existing_user = await users.findOne({ uid: userCredentials.uid });
+        if ( existing_user ) {
             console.log("User already exists: ", userCredentials.uid); // Logging for clarity
             return { valid: false, message: 'User already exists' };
         }
@@ -132,44 +132,69 @@ const _delete_user_session = () => {
 
 const _is_user_authenticated = (req) => {
     // Check if the user ID is stored in the session
-    return req.session.uid !== undefined;
+    return req.session.uid != undefined;
 };
 
 module.exports = {
 
     enforceSession: function (req, res, next) {
         if (_is_user_authenticated(req) == false) {
-            let url = req.url == '/' ? 'home' : req.url;
-            let encoded_redirect_url = encodeURIComponent(url);
+            const url = req.originalUrl == '/' ? 'home' : req.originalUrl;
+            const encoded_redirect_url = encodeURIComponent(url);
             res.redirect(`/login?ref=${encoded_redirect_url}`);
         } else {
             next();
         }
     },
 
+    enforceRole: async function (req, res, next) {
+        await client.connect();
+        const users_collection = client.db(database_name).collection('users');
+        const user = await users_collection.findOne({ uid: req.session.uid });
+        if ( ! user.role ) {
+            const url = req.originalUrl == '/' ? 'home' : req.originalUrl;
+            const encoded_redirect_url = encodeURIComponent(url);
+            res.redirect(`/login/role?ref=${encoded_redirect_url}`);
+        } else {
+            req.session.role = user.role;
+            req.session.save();
+            next();
+        }
+    },
 
-    registerUserCredentials: function (req) {
+    registerUserCredentials: async function (req) {
         // return: { valid, message }
         // check credentials and existing accounts, finally writing user record
         // email verification would go here, 2FA, etc.
 
         return _enforce_credential_requirements(req) == true
-            ? _create_user_record(req)
+            ? await _create_user_record(req)
             : { valid: false, message: 'User credentials do not meet security requirements' };
     },
 
     authenticateUser: async function (req) {
         // Directly return the promise from _validate_user_credentials
         // This ensures that authenticateUser itself returns a promise
-        let login_status = await _validate_user_credentials(req);
-
+        const login_status = await _validate_user_credentials(req);
         if (login_status.valid == true) {
             _create_user_session(req);
-            // No need to explicitly save the session here as it's handled by express-session middleware
             return login_status; // Return the login status object
-        } else {
+        }
+        else {
             return login_status; // Ensure to return login status even if validation fails
         }
+    },
+
+    setUserRole: async function (req) {
+        // return: { valid, message }
+        // set user role
+
+        await client.connect();
+        const users_collection = client.db(database_name).collection('users');
+        console.log(req.body);
+        return await users_collection.updateOne({ uid: req.session.uid }, { $set: { role: req.body.role } })
+            .then(() => ({ valid: true, message: 'User role set successfully' }))
+            .catch((err) => ({ valid: true, message: 'Error occured' }));
     },
 
     isUserAuthenticated: _is_user_authenticated

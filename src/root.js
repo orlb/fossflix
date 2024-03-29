@@ -12,7 +12,7 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 router.get('/', function(req, res) {
-    res.render('root');
+    res.render('root', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
 router.get('/login', function(req, res) {
@@ -20,34 +20,37 @@ router.get('/login', function(req, res) {
         res.redirect('/');
     }
     else {
-        res.render('login');
+        res.render('login', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
     }
 });
 
-router.post('/login', async function(req, res) {
-    let login_form = req.body;
-
+router.post('/login', function(req, res) {
+    const login_form = req.body;
     try {
         if (login_form.action === 'register') {
-            console.log('Attempting account registration for user: ' + login_form.uid);
-            let registration_status = await user.registerUserCredentials(req);
-            console.log(registration_status);
-            let response_code = registration_status.valid ? 200 : 400;
-            res.status(response_code).json(registration_status);
-        } else if (login_form.action === 'login') {
-            console.log('Attempting to authenticate user: ' + login_form.uid);
-            // Use await to handle the promise returned by authenticateUser
-            let login_status = await user.authenticateUser(req);
-            console.log(login_status);
-            let response_code = login_status.valid ? 200 : 400;
-            res.status(response_code).json(login_status);
-        } else {
+            user.registerUserCredentials(req)
+                .then(registration_status => res.status(registration_status.valid ? 200 : 400).json(registration_status));
+        }
+        else if (login_form.action === 'login') {
+            user.authenticateUser(req)
+                .then(login_status => res.status(login_status.valid ? 200 : 400).json(login_status));
+        }
+        else {
             res.sendStatus(400);
         }
     } catch (error) {
         console.error('Error during login or registration:', error);
         res.status(500).json({ valid: false, message: 'Server error occurred' });
     }
+});
+
+router.get('/login/role', user.enforceSession, function(req, res) {
+    res.render('login-role', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
+});
+
+router.post('/login/role', user.enforceSession, function(req, res) {
+    user.setUserRole(req)
+        .then(role_status => {res.status(role_status.valid ? 200 : 400).json(role_status)});
 });
 
 router.get('/logout', function(req, res) {
@@ -59,26 +62,30 @@ router.get('/logout', function(req, res) {
     });
 });
 
-router.get('/home', user.enforceSession, function(req, res) {
-    res.render('home');
+router.get('/home', user.enforceSession, user.enforceRole, function(req, res) {
+    console.log(req.session);
+    res.render('home', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/edit', user.enforceSession, function(req, res) {
-    res.render('edit');
+router.get('/edit', user.enforceSession, user.enforceRole, function(req, res) {
+    res.render('edit', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/edit/upload', user.enforceSession, function(req, res) {
-    res.render('edit-upload');
+router.get('/edit/upload', user.enforceSession, user.enforceRole, function(req, res) {
+    res.render('edit-upload', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/search', user.enforceSession, function(req, res) {
-    res.render('search');
+router.get('/search', user.enforceSession, user.enforceRole, function(req, res) {
+    res.render('search', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/watch/:movie_id', user.enforceSession, function(req, res) {
+router.get('/watch/:movie_id', user.enforceSession, user.enforceRole, function(req, res) {
     const movie_id = req.params.movie_id;
     query.getMovie(movie_id)
-        .then(movie_object => {console.log(movie_object); res.render('watch', {movie_object: movie_object})})
+        .then(movie_object => {console.log(movie_object); res.render('watch', {
+            movie_object: movie_object,
+            fossflix_user: {uid: req.session.uid, role: req.session.role}
+        })})
         .catch(err => res.status(500).send(err.message));
 });
 

@@ -1,3 +1,15 @@
+const _redirect_to_ref = () => {
+    // redirect to url encoded ref
+    const url_params = (new URLSearchParams(new URL(location.href).search));
+
+    if ( url_params.has('ref') ) {
+        window.location.href = decodeURIComponent(url_params.get('ref'));
+    }
+    else {
+        window.location.href = '/home';
+    }
+};
+
 const _enforce_credential_requirements = () => {
     // return: { valid, messages }
 
@@ -83,17 +95,9 @@ const _submit_login_form = (action) => {
     })
     .then(response => response.json())
     .then(authentication_status => {
-        alert(`${authentication_status['valid'] ? 'Success: ' : 'Failed'}\n${authentication_status['message']}`);
-        if ( action == 'login' ) {
-            // redirect to url encoded ref
-            let url_params = (new URLSearchParams(new URL(location.href).search));
-
-            if ( url_params.has('ref') ) {
-                window.location.href = decodeURIComponent(url_params.get('ref'));
-            }
-            else {
-                window.location.href = '/home';
-            }
+        alert(`${authentication_status.valid ? 'Success: ' : 'Failed'}\n${authentication_status.message}`);
+        if ( action == 'login' && authentication_status.valid ) {
+            _redirect_to_ref();
         }
         else {
             document.getElementById('uid').value = '';
@@ -106,3 +110,22 @@ const _submit_login_form = (action) => {
     });
 };
 
+const _submit_role_form = (form) => {
+    const form_data = new FormData(form);
+    fetch("/login/role", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Object.fromEntries(form_data)),
+    })
+    .then(response => response.json())
+    .then(role_status => {
+        alert(`${role_status.valid ? 'Success: ' : 'Failed'}\n${role_status.message}`);
+        if ( role_status.valid ) _redirect_to_ref();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while attempting to login.');
+    });
+};
