@@ -8,6 +8,8 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 
+const user = require('./modules/user');
+
 const root = require('./root');
 const api = require('./api');
 
@@ -24,8 +26,18 @@ app.use(session({
 }));
 
 app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))); // serve 'public' directory
+
+const movie = express.Router(); // for /movie route
+movie.use(user.enforceSession); // require authentication
+movie.use(express.static(path.join(path.dirname(require.main.filename), './upload/movie')));
+
+const thumbnail = express.Router(); // for /thumbnail route
+thumbnail.use(express.static(path.join(path.dirname(require.main.filename), './upload/thumbnail')));
+
 app.use('/', root);
 app.use('/api', api);
+app.use('/movie', movie);
+app.use('/thumbnail', thumbnail);
 
 const host = config.get('host');
 const port = config.get('port');

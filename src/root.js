@@ -75,19 +75,11 @@ router.get('/search', user.enforceSession, function(req, res) {
     res.render('search');
 });
 
-router.get('/movie/:movie_id/watch', user.enforceSession, function(req, res) {
+router.get('/watch/:movie_id', user.enforceSession, function(req, res) {
     const movie_id = req.params.movie_id;
     query.getMovie(movie_id)
-        .then(movie_object => res.render('watch', {movie_object: movie_object}))
+        .then(movie_object => {console.log(movie_object); res.render('watch', {movie_object: movie_object})})
         .catch(err => res.status(500).send(err.message));
-});
-
-router.get('/movie/:movie_id/thumbnail', function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./upload/thumbnail/${req.params.movie_id}.mp4/tn.png`));
-});
-
-router.get('/movie/:movie_id/video', user.enforceSession, function(req, res) {
-    res.sendFile(path.join(path.dirname(require.main.filename), `./upload/movie/${req.params.movie_id}.mp4`));
 });
 
 module.exports = router;

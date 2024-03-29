@@ -67,12 +67,12 @@ const _update_requirements_div = () => {
 };
 
 const _submit_login_form = (action) => {
-    let form = document.getElementById('login_form');
-    let formData = new FormData(form);
+    const form = document.getElementById('login_form');
+    const formData = new FormData(form);
     let object = {};
     formData.forEach((value, key) => object[key] = value);
     object['action'] = action;
-    let json = JSON.stringify(object);
+    const json = JSON.stringify(object);
 
     fetch("/login", {
         method: "POST",
@@ -82,12 +82,22 @@ const _submit_login_form = (action) => {
         body: json,
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.valid) {
-            alert(`Login successful: ${data.message}`);
-            window.location.href = '/home'; // or data.redirect if specified
-        } else {
-            alert(`Login failed: ${data.message}`);
+    .then(authentication_status => {
+        alert(`${authentication_status['valid'] ? 'Success: ' : 'Failed'}\n${authentication_status['message']}`);
+        if ( action == 'login' ) {
+            // redirect to url encoded ref
+            let url_params = (new URLSearchParams(new URL(location.href).search));
+
+            if ( url_params.has('ref') ) {
+                window.location.href = decodeURIComponent(url_params.get('ref'));
+            }
+            else {
+                window.location.href = '/home';
+            }
+        }
+        else {
+            document.getElementById('uid').value = '';
+            document.getElementById('pwd').value = '';
         }
     })
     .catch(error => {

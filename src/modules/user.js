@@ -1,4 +1,4 @@
-//  auth.js
+//  user.js
 //
 //  Provides user handling functions
 //  Requires: MongoClient, Express, cookie-parser app.use(bodyParser.json())
@@ -36,9 +36,9 @@ function _enforce_credential_requirements (req) {
     else {
         return true
     }
-}
+};
 
-async function _create_user_record(req) {
+const _create_user_record = async (req) => {
     try {
         await client.connect();
         const database = client.db(database_name);
@@ -56,7 +56,8 @@ async function _create_user_record(req) {
         const result = await users.insertOne({
             uid: userCredentials.uid,
             pwd: hashedPassword, // Consider hashing the password before storing
-            // Add any other user details here
+            login_attempts: 0,
+            last_login_attempt: 0
         });
 
         console.log("User created successfully: ", result); // Logging for clarity
@@ -67,85 +68,72 @@ async function _create_user_record(req) {
     } finally {
         await client.close();
     }
-}
+};
 
-
-function _delete_user_record () {
+const _delete_user_record = () => {
     // return: true | false
     // remove user data
-}
+};
 
-async function _validate_user_credentials(req) {
-    let userCredentials = req.body;
-    let loginAttemptsFile = path.join(path.dirname(require.main.filename), 'data/login_attempts.json');
-
+const _validate_user_credentials = async (req) => {
     try {
+        const user_credentials = req.body;
+
         await client.connect();
-        const database = client.db(database_name);
-        const users = database.collection('users');
+        const users = client.db(database_name).collection('users');
 
         // Check for existing account
-        const user = await users.findOne({ uid: userCredentials.uid });
-        if (!user) {
+        const user = await users.findOne({ uid: user_credentials.uid });
+        if ( ! user ) {
             return { valid: false, message: "Login failed: User does not exist" }; 
         }
 
-        // Validate password
-        const isPasswordValid = await bcrypt.compare(userCredentials.pwd, user.pwd);
-        if (!isPasswordValid) {
-            return { valid: false, message: "Invalid credentials" };
-        }
-
-        const MAX_LOGIN_ATTEMPTS = 5;
-        const LOCK_OUT_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
-
-        const now = new Date();
-        if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-            // Check if the lockout time has passed
-            if (now - user.lastAttempt < LOCK_OUT_TIME) {
-                // User is still locked out
+        if ( Date.now() - user.last_login_attempt < 30 * 60 * 1000 ) { // 30 minute lockout time
+            if ( user.login_attempts >= 5 ) {
                 return { valid: false, message: "Account locked due to too many failed login attempts. Please try again later." };
-        } else {
-                // Lockout time has passed, reset the attempts
-                await users.updateOne({ uid: userCredentials.uid }, { $set: { loginAttempts: 1, lastAttempt: now } });
             }
-        } else if (!isPasswordValid) {
+        } else {
+            // Lockout time has passed, reset the attempts
+            await users.updateOne({ uid: user_credentials.uid }, { $set: { login_attempts: 0 } });
+        }
+
+        // Validate password
+        const is_password_valid = await bcrypt.compare(user_credentials.pwd, user.pwd);
+        if ( is_password_valid ) {
+            // login successful
+            await users.updateOne({ uid: user_credentials.uid }, { $set: { login_attempts: 0 } });
+            return { valid: true, message: "User credentials successfully validated" };
+        }
+        else {
             // Increment login attempts
-            await users.updateOne({ uid: userCredentials.uid }, { $inc: { loginAttempts: 1 }, $set: { lastAttempt: now } });
-            return { valid: false, message: "Invalid credentials" };
+            await users.updateOne({ uid: user_credentials.uid }, { $inc: { login_attempts: 1 }, $set: { last_login_attempt: Date.now() } });
+            return { valid: false, message: `Login failed: ${5 - user.login_attempts} attempts remaining` };
         }
-
-        if (isPasswordValid) {
-            // Reset login attempts on successful login
-            await users.updateOne({ uid: userCredentials.uid }, { $set: { loginAttempts: 0, lastAttempt: now } });
-            // Proceed with creating a session or token for the user
-        }
-
-        // If everything checks out
-        return { valid: true, message: "User credentials successfully validated", redirect: "/home"};
-    } catch (err) {
+    }
+    catch (err) {
         console.error(err);
         return { valid: false, message: "An error occurred during login" };
-    } finally {
+    }
+    finally {
         await client.close();
     }
-}
+};
 
-function _create_user_session(req) {
+const _create_user_session = (req) => {
     req.session.uid = req.body.uid; // Assigning UID to the session
     req.session.save(); // Explicitly save the session
     return true;
-}
+};
 
-function _delete_user_session () {
+const _delete_user_session = () => {
     // return: user session ID | false
     // delete user session on logout
-}
+};
 
-function _is_user_authenticated(req) {
+const _is_user_authenticated = (req) => {
     // Check if the user ID is stored in the session
     return req.session.uid !== undefined;
-}
+};
 
 module.exports = {
 
@@ -175,7 +163,7 @@ module.exports = {
         // This ensures that authenticateUser itself returns a promise
         let login_status = await _validate_user_credentials(req);
 
-        if (login_status.valid === true) {
+        if (login_status.valid == true) {
             _create_user_session(req);
             // No need to explicitly save the session here as it's handled by express-session middleware
             return login_status; // Return the login status object
@@ -186,4 +174,4 @@ module.exports = {
 
     isUserAuthenticated: _is_user_authenticated
 
-}
+};

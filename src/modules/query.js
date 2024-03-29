@@ -10,10 +10,10 @@ const users = database.collection("users");
 
 module.exports = {
 
-    getMovie: async (id) => {
+    getMovie: async (_id) => {
         try {
             await client.connect();
-            return id ? await movies.findOne({ id: id }) : {};
+            return _id ? await movies.findOne({ _id: _id }) : {};
         }
         catch (err) {
             console.log(err);
@@ -37,17 +37,17 @@ module.exports = {
         }
     },
 
-    addMovie: async (id, metadata) => {
+    addMovie: async (_id, metadata) => {
         try {
             await client.connect();
             const result = await movies.insertOne(
                 {
-                    id: id,
+                    _id: _id,
                     title: metadata.title,
                     description: metadata.description,
                     date: Date.now(),
                     tags: metadata.tags,
-                    likes: 0
+                    likes: []
                 },
                 { ignoreUndefined: true }
             );
@@ -62,10 +62,10 @@ module.exports = {
         }
     },
 
-    removeMovie: async (id) => {
+    removeMovie: async (_id) => {
         try {
             await client.connect();
-            const result = await movies.deleteOne({ id: id });
+            const result = await movies.deleteOne({ _id: _id });
             console.log(result);
             return 200; // 'No Content'
         } finally {
@@ -73,10 +73,10 @@ module.exports = {
         }
     },
 
-    updateMovie: async (id, metadata) => {
+    updateMovie: async (_id, metadata) => {
         try {
             await client.connect();
-            const result = await movies.updateOne({ id: id }, { $set: metadata });
+            const result = await movies.updateOne({ _id: _id }, { $set: metadata });
             return { code: 200, record: result.ops[0] }; // In practice, we should return the updated document
         } finally {
             await client.close();

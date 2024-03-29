@@ -20,6 +20,6 @@ block content
                 input(type='text', name='tags', placeholder='Enter tags, separated by commas')
             .input-group
                 label(for='movie') Movie File
-                input.edit-input.file-input(type='file', name='movie')
+                input.edit-input.file-input(type='file', name='movie', accept=".mp4, .m4v, .mov, .avi")
 
         button.submit-button(onclick="_add_movie('movie_upload_form')") Upload Movie

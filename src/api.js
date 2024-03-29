@@ -6,16 +6,16 @@ const bodyParser = require('body-parser');
 
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
-const mime = require('mime-types');
+const mongo = require('mongodb');
+
 const multer  = require('multer');
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(path.dirname(require.main.filename), './upload/movie/'));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '.' + mime.extension(file.mimetype));
-  }
+    filename: (req, file, cb) => {
+        cb(null, new mongo.ObjectId().toString());
+    },
+    destination: (req, file, cb) => {
+        cb(null, path.join(path.dirname(require.main.filename), './upload/movie/'));
+    }
 });
 const upload = multer({ storage: storage });
 
@@ -36,15 +36,18 @@ router.get('/movies/search', function(req, res) {
 
 // Add movie
 router.post('/movies/add', user.enforceSession, upload.single('movie'), function(req, res) {
-    const movie_id = path.basename(req.file.path, '.mp4');
+    const movie_id = req.file.filename;
     const movie_metadata = req.body;
     console.log(req.file);
     // create movie thumbnail
     new ffmpeg(req.file.path)
         .takeScreenshots(
-            { size: '640x360', count: 1 },
-            path.join(path.dirname(require.main.filename), '/upload/thumbnail/' + req.file.filename),
-            err => console.log(err)
+            {
+                size: '640x360',
+                count: 1,
+                folder: path.join(path.dirname(require.main.filename), '/upload/thumbnail/'),
+                filename: movie_id
+            },
         );
     query.addMovie(movie_id, movie_metadata)
         .then(result => res.status(201).json(result))

@@ -11,6 +11,10 @@ const _search_movie = async (title = '') => {
             title: "No movies available",
             description: "Check back later"
         } ];
+    })
+    .catch(err => {
+        console.log(err);
+        location.reload(); // weird error sometimes
     });
 };
 
@@ -50,32 +54,36 @@ const _update_movie = (movie_id) => {
 };
 
 const _populate_movies_div = (movies_element, movie_id = '') => {
-    movies_element.innerHTML = '';
     _search_movie(movie_id)
-        .then(movies => movies.forEach(movie => {
-            let movie_div = document.createElement('div');
-            movie_div.classList.add('movie-div');
-            movie_div.innerHTML = `
-                <a href="${movie.id ? '/movie/' + movie.id + '/watch' : ''}">
-                    <p>
-                        <img src="${movie.id ? '/movie/' + movie.id + '/thumbnail' : '/image/thumbnail.jpeg'}"
-                            width="256"
-                            height="144"
-                        />
-                        <br>
-                        ${movie.title}<br>
-                        ${movie.date ? 'Submitted ' + new Date(movie.date).toLocaleDateString("en-US") : ''}
-                    </p>
-                </a>
-            `;
-            movies_element.appendChild(movie_div);
-        }));
+        .then(movies => {
+            let movie_divs = [];
+            movies.forEach(movie => {
+                let movie_div = document.createElement('div');
+                movie_div.classList.add('movie-div');
+                movie_div.innerHTML = `
+                    <a href="${movie._id ? '/watch/' + movie._id : ''}">
+                        <p>
+                            <img src="${movie._id ? '/thumbnail/' + movie._id + '.png' : '/image/thumbnail.jpeg'}"
+                                width="256"
+                                height="144"
+                            />
+                            <br>
+                            ${movie.title}<br>
+                            ${movie.date ? 'Submitted ' + new Date(movie.date).toLocaleDateString("en-US") : ''}
+                        </p>
+                    </a>
+                `;
+                movie_divs.push(movie_div);
+            });
+            movies_element.innerHTML = '';
+            movie_divs.forEach(movie_div => movies_element.appendChild(movie_div));
+        });
 };
 
 const _fill_movie_form = (movie_object, form_element) => {
     console.log(form_element);
     for ( let field of Object.keys(movie_object) ) {
-        console.log(field);
+        console.log(field, movie_object[field]);
         try {
             let form_input_field = form_element.querySelector(
                 `input[name=${field}], textarea[name=${field}]`
@@ -96,14 +104,14 @@ const _populate_edit_movies_div = (movies_element, form_element, click_callback 
     _search_movie()
         .then(movies => movies.forEach(movie => {
             let movie_div = document.createElement('div');
-            movie_div.id = movie.id;
+            movie_div.id = movie._id;
             movie_div.classList.add('movie-div');
             let movie_button = document.createElement('button');
             movie_button.onclick = () => {click_callback(movie, form_element)}; // function that calls callback
             movie_button.classList.add('colo-none');
             movie_button.innerHTML = `
                 <p>
-                    <img src="${movie.id ? '/movie/' + movie.id + '/thumbnail' : '/image/thumbnail.jpeg'}"
+                    <img src="${movie._id ? '/thumbnail/' + movie._id + '.png' : '/image/thumbnail.jpeg'}"
                         width="256"
                         height="144"
                     />
@@ -118,7 +126,7 @@ const _populate_edit_movies_div = (movies_element, form_element, click_callback 
 };
 
 const _delete_movie_from_form = (form_element) => {
-    const movie_id = form_element.querySelector('input[name=id]');
+    const movie_id = form_element.querySelector('input[name=_id]');
     _delete_movie(movie_id.value);
     return true;
 };
