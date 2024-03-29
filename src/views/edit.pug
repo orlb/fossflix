@@ -27,11 +27,7 @@ block content
                         label(for='tags') Tags
                         input(type='text', name='tags', placeholder='Enter tags, separated by commas')
 
-                button.button.save(onclick="_update_movie(document.getElementById('movie_edit_form')) \
-                    && _populate_edit_movies_div(  \
-                        document.getElementById('movie_list'), \
-                        document.getElementById('movie_edit_form') \
-                    )") Update Movie
+                button.button.save(onclick="_update_movie_from_form()") Update Movie
 
                 button.button.delete(onclick="_delete_movie_from_form(document.getElementById('movie_edit_form')) \
                     && _populate_edit_movies_div(  \

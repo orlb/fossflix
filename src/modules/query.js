@@ -76,8 +76,24 @@ module.exports = {
     updateMovie: async (id, metadata) => {
         try {
             await client.connect();
+
+            // Add a check to ensure metadata is not null and is an object
+            if (!metadata || typeof metadata !== 'object' || Object.keys(metadata).length === 0) {
+                console.log(`Update aborted: metadata is invalid. Received:`, metadata);
+                return { code: 400, message: 'Invalid metadata for update' };
+            }
+
             const result = await movies.updateOne({ id: id }, { $set: metadata });
-            return { code: 200, record: result.ops[0] }; // In practice, we should return the updated document
+            if (result.matchedCount === 0) {
+                console.log(`No matching movie found for update with ID: ${id}`);
+                return { code: 404, message: 'Movie not found' };
+            } else {
+                console.log(`Movie updated with ID: ${id}, Metadata:`, metadata);
+                return { code: 200, message: 'Movie updated successfully', record: result };
+            }
+        } catch (err) {
+            console.error(`Error updating movie with ID ${id}:`, err);
+            return { code: 500, message: `Error updating movie: ${err.message}` };
         } finally {
             await client.close();
         }
