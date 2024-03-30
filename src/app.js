@@ -4,6 +4,7 @@
 
 const config = require('config');
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const session = require('express-session');
@@ -29,7 +30,22 @@ app.use(express.static(path.join(path.dirname(require.main.filename), 'public'))
 
 const movie = express.Router(); // for /movie route
 movie.use(user.enforceSession); // require authentication
-movie.use(express.static(path.join(path.dirname(require.main.filename), './upload/movie')));
+
+//movie.use(express.static(path.join(path.dirname(require.main.filename), './upload/movie')));
+// Serve movie files with inline content disposition
+movie.get('/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(path.dirname(require.main.filename), './upload/movie', filename);
+    
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', 'video/mp4');
+        res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
+        fs.createReadStream(filePath).pipe(res);
+    } else {
+        res.status(404).send('File not found');
+    }
+});
 
 const thumbnail = express.Router(); // for /thumbnail route
 thumbnail.use(express.static(path.join(path.dirname(require.main.filename), './upload/thumbnail')));
