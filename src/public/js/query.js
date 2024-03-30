@@ -18,22 +18,28 @@ const _search_movie = async (title = '') => {
     });
 };
 
+
 const _add_movie = (form_id) => {
     const form = new FormData(document.getElementById(form_id));
     fetch('/api/movies/add', {
         method: 'POST',
         body: form,
     })
-    .then(response => {
-        console.log(response.status);
-        if ( response.status == 201 ) {
-            console.log("Movie successfully uploaded.")
+    .then(response => response.json()) // Parse JSON response
+    .then(data => {
+        // Check if upload was successful
+        if (data.code === 201) {
+            alert('Movie successfully uploaded!');
+        } else {
+            alert('Failed to upload movie. Please try again.');
         }
-        else {
-            console.log("Movie upload invalid.");
-        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred during the upload. Please try again.');
     });
 };
+
 
 const _delete_movie = (movie_id) => {
     confirm(`Delete movie ${movie_id}?`) && fetch(`/api/movies/delete/${movie_id}`, {

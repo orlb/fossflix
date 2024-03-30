@@ -3,6 +3,9 @@ const { MongoClient } = require("mongodb");
 const uri = config.get("mongodb_uri");
 const database_name = config.get("mongodb_db");
 
+const { promises: fs } = require('fs');
+const path = require('path');
+
 const client = new MongoClient(uri);
 const database = client.db(database_name);
 const movies = database.collection("movies");
@@ -65,9 +68,30 @@ module.exports = {
     removeMovie: async (_id) => {
         try {
             await client.connect();
+            const movie = await movies.findOne({ _id: _id });
+            if (!movie) {
+                console.log(`No movie found with ID: ${_id}`);
+                return { code: 404, message: 'Movie not found' };
+            }
+            
+            // Delete the MongoDB document
             const result = await movies.deleteOne({ _id: _id });
-            console.log(result);
-            return 200; // 'No Content'
+            
+            // Define the paths for the movie and its thumbnail
+            const moviePath = path.join(path.dirname(require.main.filename), './upload/movie', _id);
+            const thumbnailPath = path.join(path.dirname(require.main.filename), './upload/thumbnail', _id + '.png');
+        
+            // Delete the movie file
+            await fs.unlink(moviePath).catch(err => console.error(`Failed to delete movie file: ${err.message}`));
+        
+            // Delete the thumbnail file
+            await fs.unlink(thumbnailPath).catch(err => console.error(`Failed to delete thumbnail file: ${err.message}`));
+        
+            console.log(`Successfully deleted movie with ID: ${_id}`);
+            return { code: 200, message: 'Movie and associated files successfully deleted' };
+        } catch (err) {
+            console.error(`Error deleting movie with ID ${_id}:`, err);
+            return { code: 500, message: `Error deleting movie: ${err.message}` };
         } finally {
             await client.close();
         }
