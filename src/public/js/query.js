@@ -14,7 +14,7 @@ const _search_movie = async (title = '') => {
     })
     .catch(err => {
         console.log(err);
-        location.reload(); // weird error sometimes
+        location.reload(); // weird "Mongo server is closed" error here sometimes
     });
 };
 
@@ -27,10 +27,10 @@ const _add_movie = (form_id) => {
     .then(response => {
         console.log(response.status);
         if ( response.status == 201 ) {
-            alert("Movie successfully uploaded.")
+            console.log("Movie successfully uploaded.")
         }
         else {
-            alert("Movie upload invalid.");
+            console.log("Movie upload invalid.");
         }
     });
 };
@@ -55,9 +55,9 @@ const _update_movie = (movie_id, formData) => {
     .then(response => response.json())
     .then(data => {
         if (data.code === 200) {
-            alert(data.message);
+            console.log(data.message);
         } else {
-            alert(`Error updating movie: ${data.message}`);
+            console.log(`Error updating movie: ${data.message}`);
         }
     })
     .catch(err => {
@@ -68,7 +68,7 @@ const _update_movie = (movie_id, formData) => {
 
 function _update_movie_from_form() {
     const form = document.getElementById('movie_edit_form');
-    const id = form.querySelector('input[name="id"]').value;
+    const id = form.querySelector('input[name="_id"]').value;
     const title = form.querySelector('input[name="title"]').value;
     const description = form.querySelector('textarea[name="description"]').value;
     const tags = form.querySelector('input[name="tags"]').value.split(',').map(tag => tag.trim());
@@ -83,9 +83,8 @@ function _update_movie_from_form() {
     };
 
     _update_movie(id, updateData);
+    return true;
 }
-
-
 
 const _populate_movies_div = (movies_element, movie_id = '') => {
     _search_movie(movie_id)
@@ -116,7 +115,7 @@ const _populate_movies_div = (movies_element, movie_id = '') => {
 
 const _fill_movie_form = (movie_object, form_element) => {
     console.log(form_element);
-    const skipFields = ['_id', 'date', 'likes']; // Fields to skip
+    const skipFields = ['date', 'likes']; // Fields to skip
     for (let field of Object.keys(movie_object)) {
         if (skipFields.includes(field)) continue; // Skip this iteration if field should be skipped
         console.log(field);
