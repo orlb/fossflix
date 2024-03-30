@@ -67,8 +67,9 @@ router.put('/movies/update/:id', user.enforceSession, function(req, res) {
     const movieId = req.params.id;
     const metadata = req.body.metadata;
     query.updateMovie(movieId, metadata)
-        .then(result => res.json(result))
-        .catch(err => res.status(500).send(err.message));
+        .then(result => res.status(200).json(result))
+        .catch(err => res.status(500).json({ message: err.message }));
 });
+
 
 module.exports = router;

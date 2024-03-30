@@ -44,14 +44,48 @@ const _delete_movie = (movie_id) => {
     });
 };
 
-const _update_movie = (movie_id) => {
-    confirm(`Delete movie ${movie_id}?`) && fetch(`/api/movies/delete/${movie_id}`, {
-        method: 'DELETE'
+const _update_movie = (movie_id, formData) => {
+    fetch(`/api/movies/update/${movie_id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
     })
-    .then(response => {
-        console.log(response.status);
+    .then(response => response.json())
+    .then(data => {
+        if (data.code === 200) {
+            alert(data.message);
+        } else {
+            alert(`Error updating movie: ${data.message}`);
+        }
+    })
+    .catch(err => {
+        console.error('Error updating movie:', err);
     });
 };
+
+
+function _update_movie_from_form() {
+    const form = document.getElementById('movie_edit_form');
+    const id = form.querySelector('input[name="id"]').value;
+    const title = form.querySelector('input[name="title"]').value;
+    const description = form.querySelector('textarea[name="description"]').value;
+    const tags = form.querySelector('input[name="tags"]').value.split(',').map(tag => tag.trim());
+
+    // Ensure we're creating an object with the metadata property
+    const updateData = {
+        metadata: {
+            title,
+            description,
+            tags
+        }
+    };
+
+    _update_movie(id, updateData);
+}
+
+
 
 const _populate_movies_div = (movies_element, movie_id = '') => {
     _search_movie(movie_id)
@@ -82,22 +116,26 @@ const _populate_movies_div = (movies_element, movie_id = '') => {
 
 const _fill_movie_form = (movie_object, form_element) => {
     console.log(form_element);
-    for ( let field of Object.keys(movie_object) ) {
-        console.log(field, movie_object[field]);
+    const skipFields = ['_id', 'date', 'likes']; // Fields to skip
+    for (let field of Object.keys(movie_object)) {
+        if (skipFields.includes(field)) continue; // Skip this iteration if field should be skipped
+        console.log(field);
         try {
             let form_input_field = form_element.querySelector(
                 `input[name=${field}], textarea[name=${field}]`
             );
-            form_input_field.value = movie_object[field];
-        }
-        catch (e) {
+            if (form_input_field) {
+                form_input_field.value = movie_object[field];
+            } else {
+                console.warn(`Form field not found for: ${field}`);
+            }
+        } catch (e) {
             console.log(e);
-        }
-        finally {
-            continue;
         }
     }
 };
+
+
 
 const _populate_edit_movies_div = (movies_element, form_element, click_callback = _fill_movie_form) => {
     movies_element.innerHTML = '';
