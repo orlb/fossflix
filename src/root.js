@@ -62,24 +62,24 @@ router.get('/logout', function(req, res) {
     });
 });
 
-router.get('/home', user.enforceSession, user.enforceRole, function(req, res) {
+router.get('/home', user.enforceSession, user.enforceRole([]), function(req, res) {
     console.log(req.session);
     res.render('home', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/edit', user.enforceSession, user.enforceRole, function(req, res) {
+router.get('/edit', user.enforceSession, user.enforceRole(['editor']), function(req, res) {
     res.render('edit', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/edit/upload', user.enforceSession, user.enforceRole, function(req, res) {
+router.get('/edit/upload', user.enforceSession, user.enforceRole(['editor']), function(req, res) {
     res.render('edit-upload', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/search', user.enforceSession, user.enforceRole, function(req, res) {
+router.get('/search', user.enforceSession, user.enforceRole(['editor', 'viewer']), function(req, res) {
     res.render('search', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/watch/:movie_id', user.enforceSession, user.enforceRole, function(req, res) {
+router.get('/watch/:movie_id', user.enforceSession, user.enforceRole(['editor', 'viewer', 'marketing']), function(req, res) {
     const movie_id = req.params.movie_id;
     query.getMovie(movie_id)
         .then(movie_object => {console.log(movie_object); res.render('watch', {

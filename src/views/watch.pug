@@ -1,16 +1,36 @@
 extends base
 
 block head
-    title Edit Content - Fossflix
+    title= movie_object.title + ' - Fossflix'
     link(rel='stylesheet', href='/css/edit.css')
 
 block content
+    style.
+        .flex-column {
+            padding-bottom: 40px;
+        }
+        .button {
+            width: 20%;
+        }
     .flex-column.al-cent
-        iframe(src='/movie/' + movie_object._id,
+        video(controls
             width='1280'
-            height='720'
-            frameborder='0')
+            height='720')
+            source(src='/movie/' + movie_object._id,)
         h2= movie_object.title
         h3= movie_object.description
+        //- Determine if the movie is liked by the current user
+        - var isLiked = movie_object.likes && movie_object.likes.includes(fossflix_user.uid)
+        //- Like button with dynamic text based on whether the movie is liked
+        button#like-btn.button(onclick=`_toggle_like('${movie_object._id}')`) #{isLiked ? 'Unlike' : 'Like'}
+        if fossflix_user.role == 'marketing'
+            .comment-section.input-group
+                textarea
+
+
+
     script.
-        _populate_movies_div(document.getElementById('movie_list'));
+        // Calling _populate_movies_div if needed for this page or for consistency
+        document.addEventListener('DOMContentLoaded', function() {
+            _populate_movies_div(document.getElementById('movie_list'));
+        });

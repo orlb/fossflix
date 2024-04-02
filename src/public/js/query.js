@@ -173,3 +173,25 @@ const _delete_movie_from_form = (form_element) => {
     _delete_movie(movie_id.value);
     return true;
 };
+
+const _toggle_like = (movie_id) => {
+    fetch(`/api/movies/like/${movie_id}`, {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        const likeButton = document.getElementById(`like-btn-${movie_id}`);
+        location.reload();
+        // if (data.liked) {
+        // // Update the like button to reflect the liked state
+        //     likeButton.innerText = 'Unlike';
+        //     likeButton.classList.add('liked');
+        // } else {
+        //     // Update the like button to reflect the unliked state
+        //     likeButton.innerText = 'Like';
+        //     likeButton.classList.remove('liked');
+        // }
+        // console.log('lol');
+    })
+    .catch(error => console.error('Error toggling like:', error));
+};

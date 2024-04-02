@@ -121,5 +121,20 @@ module.exports = {
         } finally {
             await client.close();
         }
+    },
+
+    toggleLike: async (movieId, userId) => {
+        await client.connect();
+        const movie = await movies.findOne({ _id: movieId });
+    
+        if (movie.likes.includes(userId)) {
+            // User already liked the movie, so unlike it
+            await movies.updateOne({ _id: movieId }, { $pull: { likes: userId } });
+            return { liked: false };
+        } else {
+            // User hasn't liked the movie, so like it
+            await movies.updateOne({ _id: movieId }, { $addToSet: { likes: userId } });
+            return { liked: true };
+        }
     }
 };

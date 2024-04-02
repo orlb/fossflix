@@ -147,18 +147,28 @@ module.exports = {
         }
     },
 
-    enforceRole: async function (req, res, next) {
-        await client.connect();
-        const users_collection = client.db(database_name).collection('users');
-        const user = await users_collection.findOne({ uid: req.session.uid });
-        if ( ! user.role ) {
-            const url = req.originalUrl == '/' ? 'home' : req.originalUrl;
-            const encoded_redirect_url = encodeURIComponent(url);
-            res.redirect(`/login/role?ref=${encoded_redirect_url}`);
-        } else {
-            req.session.role = user.role;
-            req.session.save();
-            next();
+    enforceRole: function(requiredRoles) {
+        return async (req, res, next) => {
+            await client.connect();
+            const users_collection = client.db(database_name).collection('users');
+            const user = await users_collection.findOne({ uid: req.session.uid });
+            if ( ! user.role ) {
+                const url = req.originalUrl == '/' ? 'home' : req.originalUrl;
+                const encoded_redirect_url = encodeURIComponent(url);
+                res.redirect(`/login/role?ref=${encoded_redirect_url}`);
+                return;
+            }
+            if ( ! req.session.role ) {
+                req.session.role = user.role;
+                req.session.save();
+            }
+            if (!user || ( requiredRoles.length > 0 && !requiredRoles.includes(user.role) ) ) {
+                // If the user does not have one of the required roles, handle as needed
+                // This could be redirecting to a login page, showing an error, etc.
+                res.status(403).send('Access Denied: Insufficient privileges');
+            } else {
+                next(); // Proceed if the user has the required role
+            }
         }
     },
 

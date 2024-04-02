@@ -71,5 +71,18 @@ router.put('/movies/update/:id', user.enforceSession, function(req, res) {
         .catch(err => res.status(500).json({ message: err.message }));
 });
 
+// Like/Unlike movie
+router.post('/movies/like/:id', user.enforceSession, async function(req, res) {
+    const movieId = req.params.id;
+    const userId = req.session.uid;
+
+    try {
+        const result = await query.toggleLike(movieId, userId);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        res.status(500).send('Error toggling like');
+    }
+});
 
 module.exports = router;
