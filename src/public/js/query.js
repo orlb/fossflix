@@ -121,7 +121,7 @@ const _populate_movies_div = (movies_element, movie_id = '') => {
 
 const _fill_movie_form = (movie_object, form_element) => {
     console.log(form_element);
-    const skipFields = ['date', 'likes']; // Fields to skip
+    const skipFields = ['date', 'likes', 'views', 'comments']; // Fields to skip
     for (let field of Object.keys(movie_object)) {
         if (skipFields.includes(field)) continue; // Skip this iteration if field should be skipped
         console.log(field);
@@ -137,6 +137,20 @@ const _fill_movie_form = (movie_object, form_element) => {
         } catch (e) {
             console.log(e);
         }
+    }
+
+    const commentsSection = document.getElementById('commentsSection');
+    commentsSection.innerHTML = ''; // Clear previous comments
+
+    if (movie_object.comments && movie_object.comments.length > 0) {
+        movie_object.comments.forEach(comment => {
+            const commentDiv = document.createElement('div');
+            commentDiv.classList.add('comment');
+            commentDiv.innerHTML = `<strong>${comment.username}:</strong> ${comment.text}`;
+            commentsSection.appendChild(commentDiv);
+        });
+    } else {
+        commentsSection.textContent = 'No comments';
     }
 };
 

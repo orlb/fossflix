@@ -156,5 +156,21 @@ module.exports = {
         } finally {
             await client.close();
         }
+    },
+
+    addComment: async (movieId, username, comment) => {
+        try {
+            await client.connect();
+            // Push the new comment into the comments array of the movie document
+            await movies.updateOne(
+                { _id: movieId },
+                { $push: { comments: { username: username, text: comment } } }
+            );
+            console.log(`Comment added to movie ${movieId} by ${username}`);
+        } catch (err) {
+            console.error(`Error adding comment to movie ${movieId}:`, err);
+        } finally {
+            await client.close();
+        }
     }
 };

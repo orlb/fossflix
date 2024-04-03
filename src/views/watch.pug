@@ -21,6 +21,31 @@ block content
         if fossflix_user.role == 'marketing'
             p Likes: #{movie_object.likes.length}
             p Views: #{movie_object.views.length}
+
+            form#commentForm(method="post")
+                .input-group
+                    label(for="comment") Comment:
+                    textarea(name="comment", required)
+                button(type="submit") Submit Comment
+
+            script.
+                document.getElementById('commentForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const movieId = '#{movie_object._id}';
+                    const comment = this.querySelector('[name="comment"]').value;
+                    fetch(`/api/movies/comment/${movieId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ comment }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        location.reload(); // Reload to see the new comment - you might want to update the UI instead
+                    })
+                    .catch(error => console.error('Error posting comment:', error));
+                });
+                
         h3= movie_object.description
         //- Determine if the movie is liked by the current user
         - var isLiked = movie_object.likes && movie_object.likes.includes(fossflix_user.uid)

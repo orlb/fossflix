@@ -85,4 +85,23 @@ router.post('/movies/like/:id', user.enforceSession, async function(req, res) {
     }
 });
 
+// Add a comment
+router.post('/movies/comment/:id', user.enforceSession, async (req, res) => {
+    const movieId = req.params.id;
+    const { comment } = req.body;
+    const username = req.session.uid;
+
+    if (!comment) {
+        return res.status(400).json({ message: "Comment is required." });
+    }
+
+    try {
+        await query.addComment(movieId, username, comment);
+        res.status(200).json({ message: "Comment added successfully." });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).send('Error adding comment');
+    }
+});
+
 module.exports = router;
