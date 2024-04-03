@@ -79,8 +79,10 @@ router.get('/search', user.enforceSession, user.enforceRole(['editor', 'viewer']
     res.render('search', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/watch/:movie_id', user.enforceSession, user.enforceRole(['editor', 'viewer', 'marketing']), function(req, res) {
+router.get('/watch/:movie_id', user.enforceSession, user.enforceRole(['editor', 'viewer', 'marketing']), async function(req, res) {
     const movie_id = req.params.movie_id;
+    const user_id = req.session.uid;
+    await query.recordView(movie_id, user_id);
     query.getMovie(movie_id)
         .then(movie_object => {console.log(movie_object); res.render('watch', {
             movie_object: movie_object,

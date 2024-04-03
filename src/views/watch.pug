@@ -18,14 +18,14 @@ block content
             height='720')
             source(src='/movie/' + movie_object._id,)
         h2= movie_object.title
+        if fossflix_user.role == 'marketing'
+            p Likes: #{movie_object.likes.length}
+            p Views: #{movie_object.views.length}
         h3= movie_object.description
         //- Determine if the movie is liked by the current user
         - var isLiked = movie_object.likes && movie_object.likes.includes(fossflix_user.uid)
         //- Like button with dynamic text based on whether the movie is liked
         button#like-btn.button(onclick=`_toggle_like('${movie_object._id}')`) #{isLiked ? 'Unlike' : 'Like'}
-        if fossflix_user.role == 'marketing'
-            .comment-section.input-group
-                textarea
 
 
 

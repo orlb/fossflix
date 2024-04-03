@@ -136,5 +136,25 @@ module.exports = {
             await movies.updateOne({ _id: movieId }, { $addToSet: { likes: userId } });
             return { liked: true };
         }
+    },
+
+    recordView: async (movieId, userId) => {
+        try {
+            await client.connect();
+            // Check if the user has already viewed the movie
+            const movie = await movies.findOne({ _id: movieId, views: userId });
+            if (!movie) {
+                // If not, add the user's ID to the views list
+                await movies.updateOne(
+                    { _id: movieId },
+                    { $addToSet: { views: userId } } // $addToSet ensures the userId is added only if it's not already present
+                );
+                console.log(`View added for movie ${movieId} by user ${userId}`);
+            }
+        } catch (err) {
+            console.error(`Error recording view for movie ${movieId}:`, err);
+        } finally {
+            await client.close();
+        }
     }
 };
