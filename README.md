@@ -11,7 +11,6 @@ Fossflix offers a variety of features tailored to enhance user experience and co
 - **Movie Management**: Editors have the ability to upload, delete, and edit movie entries, including adding detailed descriptions and tags for easier discovery.
 - **User Roles and Permissions**: Differentiated access control for viewers, editors, marketing managers, and administrators, ensuring a tailored user experience.
 - **Interactive Engagement**: Users can like movies and leave comments, fostering an interactive community.
-- **Accessibility Features**: Keyboard navigation and screen reader support to ensure accessibility for all users.
 
 ## Installation
 
