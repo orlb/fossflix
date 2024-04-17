@@ -1,0 +1,12 @@
+services:
+  fossflix:
+    build: .
+    depends_on:
+      - mongo
+    ports:
+      - 8443:8443
+
+  mongo:
+    image: mongo:4.4.29
+    ports:
+      - 27017:27017

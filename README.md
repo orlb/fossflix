@@ -45,7 +45,37 @@ Ensure you have the following installed:
 `npm run test`
 
 
-Your local instance of Fossflix should now be running and accessible at `http://localhost:3000` (or whichever port you configured).
+Your local instance of Fossflix should now be running and accessible at `http://localhost:8443` (or whichever port you configured).
+
+## Docker Install
+
+Setup via docker-compose
+
+### Prerequisites
+
+Ensure you have the following installed:
+- Docker
+- Docker-compose
+
+### Steps
+
+1. Start the docker service:
+
+`sudo systemctl start docker`
+
+2. Clone the repository:
+
+`git clone https://github.com/orlb/fossflix`
+
+3. Navigate to the cloned directory:
+
+`cd fossflix`
+
+4. Build and run the fossflix image via docker-compose:
+
+`sudo docker-compose up`
+
+Your local instance of Fossflix should now be running and accessible at `http://localhost:8443`.
 
 ## Usage
 
