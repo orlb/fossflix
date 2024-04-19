@@ -75,7 +75,7 @@ router.get('/edit/upload', user.enforceSession, user.enforceRole(['editor']), fu
     res.render('edit-upload', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
-router.get('/search', user.enforceSession, user.enforceRole(['editor', 'viewer']), function(req, res) {
+router.get('/search', user.enforceSession, user.enforceRole([]), function(req, res) {
     res.render('search', {fossflix_user: {uid: req.session.uid, role: req.session.role}});
 });
 
