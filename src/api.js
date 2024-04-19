@@ -35,24 +35,62 @@ router.get('/movies/search', function(req, res) {
 });
 
 // Add movie
+const fs = require('fs');
 router.post('/movies/add', user.enforceSession, upload.single('movie'), function(req, res) {
     const movie_id = req.file.filename;
     const movie_metadata = req.body;
-    console.log(req.file);
-    // create movie thumbnail
+
+    req.connection.on('close', function() {
+        if (!res.finished) {
+            console.log('Client disconnected during upload');
+            removeUploadedFile(req.file.path); // Cleanup function
+        }
+    });
+
     new ffmpeg(req.file.path)
-        .takeScreenshots(
-            {
-                size: '640x360',
-                count: 1,
-                folder: path.join(path.dirname(require.main.filename), '/upload/thumbnail/'),
-                filename: movie_id
-            },
-        );
-    query.addMovie(movie_id, movie_metadata)
-        .then(result => res.status(201).json(result))
-        .catch(err => res.status(500).send(err.message));
+        .takeScreenshots({
+            size: '640x360',
+            count: 1,
+            folder: path.join(path.dirname(require.main.filename), '/upload/thumbnail/'),
+            filename: movie_id
+        })
+        .on('end', function() {
+            query.addMovie(movie_id, movie_metadata)
+                .then(result => res.status(201).json(result))
+                .catch(err => {
+                    console.log(err);
+                    removeUploadedFile(req.file.path);
+                    res.status(500).send(err.message);
+                });
+        })
+        .on('error', function(err) {
+            console.error('Error processing video:', err);
+            removeUploadedFile(req.file.path);
+            res.status(500).send('Error processing video');
+        });
 });
+
+function removeUploadedFile(filePath) {
+    // Remove the movie file
+    fs.unlink(filePath, err => {
+        if (err) {
+            console.error(`Error deleting file ${filePath}:`, err);
+        } else {
+            console.log(`Successfully deleted file ${filePath}`);
+            // Also attempt to remove thumbnail if movie file deletion is successful
+            const thumbPath = filePath.replace('/movie/', '/thumbnail/').replace(/\.\w+$/, '.png');
+            fs.unlink(thumbPath, thumbErr => {
+                if (thumbErr) {
+                    console.error(`Error deleting thumbnail ${thumbPath}:`, thumbErr);
+                } else {
+                    console.log(`Successfully deleted thumbnail ${thumbPath}`);
+                }
+            });
+        }
+    });
+}
+
+
 
 // Remove movie
 router.delete('/movies/delete/:id', user.enforceSession, function(req, res) {

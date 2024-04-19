@@ -72,3 +72,29 @@
 .submit-button:hover {
     background-color: #E64A19;
 }
+
+.hidden {
+    display: none;
+}
+
+.upload-status {
+    margin-top: 10px;
+}
+
+.uploading-text {
+    color: #FFF;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    width: 100%;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+.progress-bar-fill {
+    height: 20px;
+    background-color: #4CAF50;
+    width: 0%; /* Initially set to 0 */
+    transition: width 0.5s;
+}
