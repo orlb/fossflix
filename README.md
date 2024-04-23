@@ -76,12 +76,3 @@ Ensure you have the following installed:
 `sudo docker-compose up`
 
 Your local instance of Fossflix should now be running and accessible at `http://localhost:8443`.
-
-## Usage
-
-After installation, you can interact with Fossflix through its web interface:
-
-- **Home Page**: Discover the latest movies added to Fossflix.
-- **Search**: Use the search bar to find movies by keywords or genres.
-- **Upload Content**: Editors can upload new movies via the "Edit" section.
-- **User Registration and Login**: Access personalized features by signing up and logging in.
